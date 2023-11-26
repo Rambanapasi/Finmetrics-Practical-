@@ -1,0 +1,63 @@
+---
+title: "q2 readme"
+author: "Gabriel Rambanapasi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+```{r}
+# loadings
+Indexes <- read_rds("data/Cncy_Hedge_Assets.rds")
+ZAR <- read_rds("data/Monthly_zar.rds")
+
+# get ZAR return 
+
+ZAR <- ZAR %>% mutate(ZAR_return = value/lag(value)-1) %>% slice(-1) %>% select(-value,-Tickers)
+
+#  check if there are NA in the set
+# is.na(ZAR$ZAR_return)
+
+
+```
+
+# Objective 
+
+- find out if the volatility paradox holds for the data given 
+- construct a 60/40 equity bond portfolio with a 70/30 local global split. 
+- get returns for the portfolio 
+- use the usdzar to get returns for hedged and un hedged portfolios. 
+- graph  returns zar usd and the said portfolio and describe the quadrants by. including text in the plot
+
+```{r}
+# lets start in reverse, just to appreciate returns for both aasets, this is just for the unhedged Global portfolio 
+
+plot_data <- Indexes %>% select(date, MSCI_ACWI) %>% left_join(., ZAR, by = "date") %>% filter(!is.na(ZAR_return)) # there are missing ZAR values, the dataset isnt an exact match
+
+# the plot 
+
+ggplot(plot_data, aes(x = ZAR_return, y = MSCI_ACWI)) +
+  geom_point() +
+  labs(title = "Scatter Plot of MSCI_ACWI vs ZAR_return",
+       x = "ZAR_return",
+       y = "MSCI_ACWI") +
+  geom_vline(xintercept = mean(plot_data$MSCI_ACWI), linetype = "dashed", color = "red") +
+  geom_hline(yintercept = mean(plot_data$ZAR_return), linetype = "dashed", color = "blue") +
+  annotate("text", x = mean(plot_data$MSCI_ACWI), y = mean(plot_data$ZAR_return), 
+           label = "Quadrant I", color = "green", size = 4, vjust = -10, hjust = 1) +
+  annotate("text", x = mean(plot_data$MSCI_ACWI), y = mean(plot_data$ZAR_return), 
+           label = "Quadrant II", color = "red", size = 4, vjust = 10, hjust = -1) +
+  annotate("text", x = mean(plot_data$MSCI_ACWI), y = mean(plot_data$ZAR_return), 
+           label = "Quadrant III", color = "pink", size = 4, vjust = 10, hjust = 1.5) +
+  annotate("text", x = mean(plot_data$MSCI_ACWI), y = mean(plot_data$ZAR_return), 
+           label = "Quadrant IV", color = "orange", size = 4, vjust = -10, hjust = -1)
+
+# do it for all asset classes 
+```
+```{r}
+# lets construct the portfolio 
+
+#  
+
+```
+

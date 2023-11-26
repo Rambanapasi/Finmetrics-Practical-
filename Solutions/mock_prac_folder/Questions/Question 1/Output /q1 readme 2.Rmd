@@ -1,0 +1,214 @@
+---
+title: "question 1 readme"
+author: "Gabriel Rambanapasi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# question 1 
+
+```{r}
+# loadings 
+library(pacman, gt)
+p_load("tidyverse")
+
+ASISA <- read_rds("data/ASISA_Rets.rds")
+BM <- read_rds("data/Capped_SWIX.rds") 
+AI <- read_rds("data/AI_Max_Fund.rds")
+
+# clean up the data to merge the datasets, its already monthly data
+ASISA <- ASISA %>% select(date, Fund, Returns)
+AI <- AI %>% mutate(`Fund` = " AI") %>% rename(Returns = `AI_Fund`) %>%  select(date, Fund, Returns )
+BM <- BM %>% rename( Fund = "Tickers")
+```
+
+# objective 
+
+
+- im going to show after the fee performance for an actively managed fund and AI fund compares to that of the benchmark.  
+
+- i will use excess returns to depict the difference in performnace 
+
+- for fund performance, I will use  information ratios, this is my best measure to compare risk adjusted performance. 
+
+- im going to assume a standard indusrty fee of 1.5% for active managers and the AI fund.
+
+```{r}
+# starting with comparables for the benchmarks ASISA and SWIX 
+
+# lets find out when these indexes started and look for the best, worst and median performing funds 
+
+# Funds that have the greatest vintage 
+Funds_inception_in_2003 <- ASISA %>%
+  arrange(date) %>%
+  group_by(Fund) %>%
+  mutate(Y = format(date,"%Y")) %>% filter(Y %in% 2003) %>% select(Fund) %>% distinct() %>% pull()
+
+#  sanity check
+
+# ASISA %>%
+#   filter(Fund %in% Funds_inception_in_2003$Fund) %>%
+#   mutate(YM = format(date, "%Y-%m")) %>%
+#   group_by(Fund) %>%
+#   summarise(HasRecordsFor2023 = all(2023 %in% year(date))) %>%
+#   filter(HasRecordsFor2023) %>%
+#   select(Fund)
+
+
+top_funds_comparison_to_the_benchmark <- ASISA %>%
+  arrange(date) %>%
+  group_by(Fund) %>%
+  filter(Fund %in%Funds_inception_in_2003) %>%
+  select(date, Fund, Returns) %>%
+    mutate(YM = format(date, "%y %b")) %>% 
+  summarise(Inception = first(date), Cumulative_Return = prod(1 + Returns)) %>%
+  arrange(desc(Cumulative_Return)) %>%
+  slice_head(n = 5) %>% bind_rows(BM %>% filter(date >= lubridate::ymd(20031031)) %>% summarise(Fund = "SWIX",Inception = first(date),  Cumulative_Return = prod(1 + Returns)))# this is before fees 
+
+
+# top_funds_comparison_to_the_benchmark
+# 
+# table1 <- gt(top_funds_comparison_to_the_benchmark)
+
+gtsave(table1 , file = "output_table.html")
+
+# now i want get net of fee returns 
+
+top_funds<- ASISA %>%
+  arrange(date) %>%
+  group_by(Fund) %>%
+  filter(Fund %in%Funds_inception_in_2003) %>%
+  select(date, Fund, Returns) %>%
+    mutate(YM = format(date, "%y %b")) %>% 
+  summarise(Inception = first(date), Cumulative_Return = prod(1 + Returns)) %>%
+  arrange(desc(Cumulative_Return)) %>%
+ slice_head(n = 5) %>% select(Fund) %>% distinct %>% pull()
+
+Net_of_top_managers  <- ASISA %>% 
+    filter (Fund %in% top_funds) %>% 
+    mutate(YM = format(date, "%y %b")) %>%
+    group_by(YM) %>% 
+    filter(date == last(date)) %>% ungroup() %>% select(-YM ) %>% 
+    mutate(fee_calc(., 150)) %>% 
+    group_by(Fund) %>% 
+    summarise(Inception = first(date), Cumulative_Return = prod(1 + `Net of fees`) - 1) %>%
+  arrange(desc(Cumulative_Return)) %>% 
+    bind_rows(BM %>% filter(date >= lubridate::ymd(20031031)) %>% summarise(Fund = "SWIX",  Inception = first(date), Cumulative_Return = prod(1 + Returns))) # after fees 
+
+Net_of_top_managers
+
+ table2 <- gt(Net_of_top_managers)
+ 
+ gtsave(table2 , file = "output_table2.html")
+
+```
+
+
+```{r}
+# now for the distributional arguments
+
+# top manager
+
+Monthly_returns <- ASISA %>% 
+    filter (Fund %in% top_funds) %>% 
+    mutate(YM = format(date, "%y %b")) %>%
+    group_by(YM) %>% 
+    filter(date == last(date)) %>%
+    ungroup() %>% select(-YM )
+
+BM <- BM %>% filter(date >= lubridate::ymd(20031031))
+
+combined_return <- bind_rows(BM, Monthly_returns) %>% group_by(Fund) 
+
+topmanager <- combined_return %>%
+  ggplot(aes(x = Fund, y = Returns, color = Fund)) +
+  geom_violin() +
+  geom_jitter(width = 0.15, alpha = 0.8) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  labs(title = "Distribution of Returns",
+       subtitle = "Performance of good funds is similar to benchmark",  # Add the subtitle here
+       x = "", y = "Return") +
+  theme(legend.position = "none",
+        plot.title = element_text(face = "bold", size = 13),
+        plot.title.position = "plot")
+
+ ggsave("topmanager.jpg", topmanager, width = 6, height = 4, units = "in", dpi = 300)
+
+```
+
+
+```{r}
+
+ # bottom managers
+bottom_funds_comparison_to_the_benchmark <- ASISA %>%
+  arrange(date) %>%
+  group_by(Fund) %>%
+  filter(Fund %in%Funds_inception_in_2003) %>%
+  select(date, Fund, Returns) %>%
+    mutate(YM = format(date, "%y %b")) %>% 
+  summarise(Inception = first(date), Cumulative_Return = prod(1 + Returns)) %>%
+  arrange((Cumulative_Return)) %>%
+  slice_head(n = 5) %>% bind_rows(BM %>% filter(date >= lubridate::ymd(20031031)) %>% summarise(Fund = "SWIX",Inception = first(date),  Cumulative_Return = prod(1 + Returns)))# this is before fees 
+
+bottom_funds_comparison_to_the_benchmark
+
+ table3 <- gt(bottom_funds_comparison_to_the_benchmark)
+
+  gtsave(table3 , file = "output_table3.html")
+
+bottom_funds<- ASISA %>%
+  arrange(date) %>%
+  group_by(Fund) %>%
+  filter(Fund %in%Funds_inception_in_2003) %>%
+  select(date, Fund, Returns) %>%
+    mutate(YM = format(date, "%y %b")) %>% 
+  summarise(Inception = first(date), Cumulative_Return = prod(1 + Returns)) %>%
+  arrange((Cumulative_Return)) %>%
+  slice_head(n = 5) %>% select(Fund) %>% distinct %>% pull()
+
+Net_of_bottom_managers  <- ASISA %>% 
+    filter (Fund %in% bottom_funds) %>% 
+    mutate(YM = format(date, "%y %b")) %>%
+    group_by(YM) %>% 
+    filter(date == last(date)) %>% ungroup() %>% select(-YM ) %>% 
+    mutate(fee_calc(., 150)) %>% 
+    group_by(Fund) %>% 
+    summarise(Inception = first(date), Cumulative_Return = prod(1 + `Net of fees`) - 1) %>%
+  arrange(desc(Cumulative_Return)) %>% 
+    bind_rows(BM %>% filter(date >= lubridate::ymd(20031031)) %>% summarise(Fund = "SWIX",  Inception = first(date), Cumulative_Return = prod(1 + Returns))) # after fees 
+
+ table4 <- gt(bottom_funds_comparison_to_the_benchmark)
+ 
+ gtsave(table4 , file = "output_table4.html")
+```
+
+```{r}
+# bad manager perfomance
+Monthly_returns <- ASISA %>% 
+    filter (Fund %in% bottom_funds) %>% 
+    mutate(YM = format(date, "%y %b")) %>%
+    group_by(YM) %>% 
+    filter(date == last(date)) %>%
+    ungroup() %>% select(-YM )
+
+BM <- BM %>% filter(date >= lubridate::ymd(20031031))
+
+combined_return <- bind_rows(BM, Monthly_returns) %>% group_by(Fund) 
+
+bottommanager <- combined_return %>%
+  ggplot(aes(x = Fund, y = Returns, color = Fund)) +
+  geom_violin() +
+  geom_jitter(width = 0.15, alpha = 0.8) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  labs(title = "Distribution of Returns",
+       subtitle = "Performance of bad funds has questionable returns, hard to determine manager skill",  
+       x = "", y = "Return") +
+  theme(legend.position = "none",
+        plot.title = element_text(face = "bold", size = 13),
+        plot.title.position = "plot")
+ 
+ ggsave("bottommanger.jpg", bottommanager, width = 6, height = 4, units = "in", dpi = 300)
+```
+

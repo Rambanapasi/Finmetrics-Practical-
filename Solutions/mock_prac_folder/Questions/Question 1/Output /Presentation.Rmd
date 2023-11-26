@@ -1,0 +1,14 @@
+---
+title: "Untitled"
+author: "Gabriel Rambanapasi"
+date: "`r Sys.Date()`"
+output: powerpoint_presentation
+---
+
+
+#
+
+![](bottommanger.jpg)
+#
+
+![](bottommanger.jpg)

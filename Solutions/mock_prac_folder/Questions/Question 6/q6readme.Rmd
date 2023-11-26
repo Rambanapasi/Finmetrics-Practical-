@@ -1,0 +1,136 @@
+---
+title: "q6readme"
+author: "Gabriel Rambanapasi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# objetive 
+
+optimize a portfolio given the constraints listed below and tweak depending on own analysis. 
+
+
+
+# cnstraints 
+
+- long only 
+- When using covariance and mean forecasts, use a look-back of less than 3 years;
+- Do not hold any assets with less than 3 years’ returns data;
+- Apply Quarterly Rebalancing;
+- Limit exposure to Bonds and credit instruments at 25%;
+- Limit exposure to Equities at 60%;
+- Limit single asset exposure at 40%;
+
+```{r}
+# loadings
+
+pacman::p_load(tidyverse)
+pacman::p_load(RiskPortfolios);pacman::p_load(fitHeavyTail)
+pacman::p_load(quadprog)
+StartDate <- lubridate::ymd(20150101)
+
+# Data 
+
+MAA <- read_rds("data/MAA.rds") %>% filter(!Ticker %in% c("DXY Index", 'BCOMTR Index', "ADXY Index")) %>% select(-Name)
+
+# seems like the above could be used to stratify returns 
+
+# read_rds("data/msci.rds") %>% select(Name) %>% distinct()
+
+msci <-
+read_rds("data/msci.rds") %>%
+filter(Name %in% c("MSCI_ACWI", "MSCI_USA", "MSCI_RE", "MSCI_Jap")) %>%  rename(Ticker = Name)
+
+# One dataframe
+
+combined.data <- bind_rows(MAA, msci) 
+
+# tickers that existed years ago 
+
+comb_assets_3_years <- combined.data %>% group_by(Ticker) %>% filter(date == as.Date("2020/11/25")) %>% pull(Ticker) %>% unique()
+
+# rebalancing quarter days used for filter 
+
+RebMonths <- c("Mar", "Jun", "Oct", "Dec" )
+
+
+return <- 
+  
+combined.data %>%
+    mutate(M = format(date, "%b"), YM = format(date, "%Y %b")) %>% filter(M %in% RebMonths) %>%filter(Ticker %in% comb_assets_3_years) %>% 
+  group_by(Ticker,YM ) %>% 
+  filter(date == last(date)) %>%
+  ungroup() %>% 
+  group_by(Ticker) %>% 
+  mutate(ret = log(Price)- lag(log(Price))) %>% slice(-1) %>%  ungroup() %>%select(date, Ticker, ret) %>% 
+  spread(Ticker, ret) %>% filter(date > ymd(20101231))
+
+
+# impute returns for missing dates
+
+return <- impute_missing_returns(return, 'Drawn_Distribution_Collective')
+
+# Using risk portfolos I will determing the mean and covariance matric 
+
+return_mat_Nodate <- data.matrix(return[, -1])
+
+Sigma <- RiskPortfolios::covEstimation(return_mat_Nodate)
+
+Mu <- return %>% summarise(across(-date, ~prod(1+.)^(1/n())-1)) %>% purrr::as_vector()
+
+# to guard against the risk of heavy tails I use the heavy tail package and estimate new mean and covariance matrix
+
+HTT <- fitHeavyTail::fit_mvt(return_mat_Nodate)
+mu <- return %>% summarise(across(-date, ~prod(1+.)^(1/n())-1)) %>% purrr::as_vector()
+# mu <- HTT$mu
+Sigma <- HTT$cov
+# Ensure order is the same for mu and Sigma (some optimizers are sensitive to ordering... :( )
+mu <- mu[colnames(Sigma)] 
+# lastly all covariance matrices need to be positive definite 
+
+Sigma <- as.matrix( Matrix::nearPD(Sigma)$mat)
+```
+# lets add linear constraints and solve the model
+
+```{r}
+
+# the settings to the optimizer, love quadprog for this 
+
+NStox <- ncol(return_mat_Nodate)
+LB = 0.01
+UB = 0.4
+Eq = 0.6 # max equity exposure
+Bonds = 0.25 # max FI exposure
+meq = 1
+
+
+# the hard stuff now, get the matrices 
+
+# AMAT, constraints to be respected when optimizing
+# meq are inequality constarints 
+# 
+
+Eq_mat <- rbind(matrix(0, nrow = 6, ncol = 4),
+                -diag(4))
+
+FI_mat <- rbind(matrix(0, 4, 6), 
+                 -diag(6))
+
+Amat <- cbind(1, diag(NStox), -diag(NStox), Eq_mat, FI_mat)
+
+# BVEC for the boc constraints 
+bvec <- c(1, rep(LB, NStox), -rep(UB, NStox), -rep(Eq, 4), -rep(Bonds, 6))
+
+  w.opt <-
+    quadprog::solve.QP(Dmat = Sigma,
+                            dvec = mu,
+                            Amat = Amat,
+                            bvec = bvec,
+                            meq = meq)$solution
+
+ result.QP <- tibble(stocks = colnames(Sigma), weight = w.opt)
+ 
+ # thats a wrap
+```
+
+

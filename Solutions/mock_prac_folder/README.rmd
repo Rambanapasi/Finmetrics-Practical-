@@ -1,0 +1,881 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+```{r}
+
+# PDF Texevier:
+Texevier::create_template(directory = "Questions",
+                          template_name = "Question1"
+)
+
+# HTML Texevier:
+Texevier::create_template_html(directory = "Questions",
+                          template_name = "Question2"
+)
+
+```
+
+# question 1 
+
+```{r}
+# loadings 
+library(pacman, gt)
+p_load("tidyverse")
+
+ASISA <- read_rds("data/ASISA_Rets.rds")
+BM <- read_rds("data/Capped_SWIX.rds") 
+AI <- read_rds("data/AI_Max_Fund.rds")
+
+# clean up the data to merge the datasets, its already monthly data
+ASISA <- ASISA %>% select(date, Fund, Returns)
+AI <- AI %>% mutate(`Fund` = " AI") %>% rename(Returns = `AI_Fund`) %>%  select(date, Fund, Returns )
+BM <- BM %>% rename( Fund = "Tickers")
+
+fee_calc <- function(df, fee) {
+  
+  # annualize the rate 
+  feeconverter <- function(fee) { 
+    fee_monthly = (1 + fee / 10000)^(1 / 12) - 1
+    fee_monthly
+  }
+  
+  df <- df %>% 
+    mutate(`Net of fees` = Returns - feeconverter(fee))  # Corrected the feeconverter argument
+  
+  return(df)  # Explicitly return the modified dataframe
+}
+```
+
+# objective 
+
+
+- im going to show after the fee performance for an actively managed fund and AI fund compares to that of the benchmark.  
+
+- i will use excess returns to depict the difference in performnace 
+
+- for fund performance, I will use  information ratios, this is my best measure to compare risk adjusted performance. 
+
+- im going to assume a standard indusrty fee of 1.5% for active managers and the AI fund.
+
+```{r}
+# starting with comparables for the benchmarks ASISA and SWIX 
+
+# lets find out when these indexes started and look for the best, worst and median performing funds 
+
+# Funds that have the greatest vintage 
+Funds_inception_in_2003 <- ASISA %>%
+  arrange(date) %>%
+  group_by(Fund) %>%
+  mutate(Y = format(date,"%Y")) %>% filter(Y %in% 2003) %>% select(Fund) %>% distinct() %>% pull()
+
+#  sanity check
+
+# ASISA %>%
+#   filter(Fund %in% Funds_inception_in_2003$Fund) %>%
+#   mutate(YM = format(date, "%Y-%m")) %>%
+#   group_by(Fund) %>%
+#   summarise(HasRecordsFor2023 = all(2023 %in% year(date))) %>%
+#   filter(HasRecordsFor2023) %>%
+#   select(Fund)
+
+
+top_funds_comparison_to_the_benchmark <- ASISA %>%
+  arrange(date) %>%
+  group_by(Fund) %>%
+  filter(Fund %in%Funds_inception_in_2003) %>%
+  select(date, Fund, Returns) %>%
+    mutate(YM = format(date, "%y %b")) %>% 
+  summarise(Inception = first(date), Cumulative_Return = prod(1 + Returns)) %>%
+  arrange(desc(Cumulative_Return)) %>%
+  slice_head(n = 5) %>% bind_rows(BM %>% filter(date >= lubridate::ymd(20031031)) %>% summarise(Fund = "SWIX",Inception = first(date),  Cumulative_Return = prod(1 + Returns)))# this is before fees 
+
+
+# top_funds_comparison_to_the_benchmark
+# 
+# table1 <- gt(top_funds_comparison_to_the_benchmark)
+
+gtsave(table1 , file = "output_table.html")
+
+# now i want get net of fee returns 
+
+top_funds<- ASISA %>%
+  arrange(date) %>%
+  group_by(Fund) %>%
+  filter(Fund %in%Funds_inception_in_2003) %>%
+  select(date, Fund, Returns) %>%
+    mutate(YM = format(date, "%y %b")) %>% 
+  summarise(Inception = first(date), Cumulative_Return = prod(1 + Returns)) %>%
+  arrange(desc(Cumulative_Return)) %>%
+ slice_head(n = 5) %>% select(Fund) %>% distinct %>% pull()
+
+Net_of_top_managers  <- ASISA %>% 
+    filter (Fund %in% top_funds) %>% 
+    mutate(YM = format(date, "%y %b")) %>%
+    group_by(YM) %>% 
+    filter(date == last(date)) %>% ungroup() %>% select(-YM ) %>% 
+    mutate(fee_calc(., 150)) %>% 
+    group_by(Fund) %>% 
+    summarise(Inception = first(date), Cumulative_Return = prod(1 + `Net of fees`) - 1) %>%
+  arrange(desc(Cumulative_Return)) %>% 
+    bind_rows(BM %>% filter(date >= lubridate::ymd(20031031)) %>% summarise(Fund = "SWIX",  Inception = first(date), Cumulative_Return = prod(1 + Returns))) # after fees 
+
+Net_of_top_managers
+
+ table2 <- gt(Net_of_top_managers)
+
+ table2
+
+```
+
+
+```{r}
+# now for the distributional arguments
+
+# top manager
+
+Monthly_returns <- ASISA %>% 
+    filter (Fund %in% top_funds) %>% 
+    mutate(YM = format(date, "%y %b")) %>%
+    group_by(YM) %>% 
+    filter(date == last(date)) %>%
+    ungroup() %>% select(-YM )
+
+BM <- BM %>% filter(date >= lubridate::ymd(20031031))
+
+combined_return <- bind_rows(BM, Monthly_returns) %>% group_by(Fund) 
+
+topmanager <- combined_return %>%
+  ggplot(aes(x = Fund, y = Returns, color = Fund)) +
+  geom_violin() +
+  geom_jitter(width = 0.15, alpha = 0.8) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  labs(title = "Distribution of Returns",
+       subtitle = "Performance of good funds is similar to benchmark",  # Add the subtitle here
+       x = "", y = "Return") +
+  theme(legend.position = "none",
+        plot.title = element_text(face = "bold", size = 13),
+        plot.title.position = "plot")
+topmanager
+
+```
+
+# question 2
+
+
+```{r}
+# loadings
+Indexes <- read_rds("data/Cncy_Hedge_Assets.rds")
+ZAR <- read_rds("data/Monthly_zar.rds")
+
+# get ZAR return 
+
+ZAR <- ZAR %>% mutate(ZAR_return = value/lag(value)-1) %>% slice(-1) %>% select(-value,-Tickers)
+
+#  check if there are NA in the set
+# is.na(ZAR$ZAR_return)
+```
+
+# Objective 
+
+- find out if the volatility paradox holds for the data given 
+- construct a 60/40 equity bond portfolio with a 70/30 local global split. 
+- get returns for the portfolio 
+- use the usdzar to get returns for hedged and un hedged portfolios. 
+- graph  returns zar usd and the said portfolio and describe the quadrants by. including text in the plot
+
+```{r}
+# lets start in reverse, just to appreciate returns for both aasets, this is just for the unhedged Global portfolio 
+
+plot_data <- Indexes %>% select(date, MSCI_ACWI) %>% left_join(., ZAR, by = "date") %>% filter(!is.na(ZAR_return)) # there are missing ZAR values, the dataset isnt an exact match
+
+# the plot 
+
+ggplot(plot_data, aes(x = ZAR_return, y = MSCI_ACWI)) +
+  geom_point() +
+  labs(title = "Scatter Plot of MSCI_ACWI vs ZAR_return",
+       x = "ZAR_return",
+       y = "MSCI_ACWI") +
+  geom_vline(xintercept = mean(plot_data$MSCI_ACWI), linetype = "dashed", color = "red") +
+  geom_hline(yintercept = mean(plot_data$ZAR_return), linetype = "dashed", color = "blue") +
+  annotate("text", x = mean(plot_data$MSCI_ACWI), y = mean(plot_data$ZAR_return), 
+           label = "Quadrant I", color = "green", size = 4, vjust = -10, hjust = 1) +
+  annotate("text", x = mean(plot_data$MSCI_ACWI), y = mean(plot_data$ZAR_return), 
+           label = "Quadrant II", color = "red", size = 4, vjust = 10, hjust = -1) +
+  annotate("text", x = mean(plot_data$MSCI_ACWI), y = mean(plot_data$ZAR_return), 
+           label = "Quadrant III", color = "pink", size = 4, vjust = 10, hjust = 1.5) +
+  annotate("text", x = mean(plot_data$MSCI_ACWI), y = mean(plot_data$ZAR_return), 
+           label = "Quadrant IV", color = "orange", size = 4, vjust = -10, hjust = -1)
+
+# do it for all asset classes 
+```
+```{r}
+# lets construct the portfolio 
+
+#  
+
+```
+
+
+# Question 3 
+
+```{r}
+
+# loadings 
+pacman::p_load(tbl2xts, PerformanceAnalytics, fmxdat, readr, tidyverse, rportfolios, gt)
+
+ALSI <- read_rds("data/ALSI.rds") 
+
+# going to assume that j203 and j403 represent weights, there are samll differences in the sample period. Returns are just that for the security on that rebalancing day 
+
+#  filtering rebalancing days
+RebDays <- read_rds("data/Rebalance_days.rds") %>% filter(Date_Type %in% "Reb Trade Day") %>% pull(date)
+
+```
+
+## Sector and Index Analysis
+
+- to compare methodolgies means to sum examing the return and risk profile of indexation, as well as, turnover of the methodology (not sure how i can get the latter but I will take a stab at it). 
+
+- so I will compare return drivers by looking at the constitutes at rebalancing periods. 
+
+- drawdowns comaprison, link at to sector expsore. 
+```{r q2_comp}
+# lets set a intial investment amount 
+
+Fund_Size_at_Start <- 1000
+
+
+all.indexes <- ALSI
+
+#  get the index weight df 
+J203_weights <- all.indexes%>% select(date, Tickers, J203) %>% spread(., Tickers, J203) %>% tbl_xts()
+J203_weights[is.na(J203_weights)] <- 0
+
+J403_weights <- all.indexes%>% select(date, Tickers, J403) %>% spread(., Tickers, J403) %>% tbl_xts()
+J403_weights[is.na(J403_weights)] <- 0
+# return df
+
+Return <- all.indexes %>% 
+    select(date, Tickers, Return) %>%  
+    spread(., Tickers, Return) %>% tbl_xts()
+
+Return[is.na(Return)] <- 0
+
+Return_df <-  all.indexes%>%  
+    select(date, Tickers, Return) 
+
+# now we get necessary object for buidling the portfolios 
+# Weights 
+
+J203 <- rmsfuns::Safe_Return.portfolio(Return, 
+                                     
+                       weights = J203_weights, lag_weights = TRUE,
+                       
+                       verbose = TRUE, contribution = TRUE, 
+                       
+                       value = Fund_Size_at_Start, geometric = TRUE)
+
+J403 <- rmsfuns::Safe_Return.portfolio(Return, 
+                                     
+                       weights = J403_weights, lag_weights = TRUE,
+                       
+                       verbose = TRUE, contribution = TRUE, 
+                       
+                       value = Fund_Size_at_Start, geometric = TRUE)
+
+
+J203_Contribution <- 
+      J203$"contribution" %>% xts_tbl() 
+
+J203_BPWeight <- 
+  
+      J203$"BOP.Weight" %>% xts_tbl() 
+
+J203_BPValue <- 
+  
+      J203$"BOP.Value" %>% xts_tbl()  
+    
+# Clean and save portfolio returns and weights:
+J403_Contribution <- 
+      J203$"contribution" %>% xts_tbl() 
+
+J403_BPWeight <- 
+  
+      J203$"BOP.Weight" %>% xts_tbl() 
+
+J403_BPValue <- 
+  
+      J203$"BOP.Value" %>% xts_tbl()  
+    
+
+    names(J203_Contribution) <- c("date", names(J203$"contribution"))
+    names(J203_BPWeight) <- c("date", names(J203$"BOP.Weight"))
+    names(J203_BPValue) <- c("date", names(J203$"BOP.Value"))
+  
+    names(J403_Contribution) <- c("date", names(J403$"contribution"))
+    names(J403_BPWeight) <- c("date", names(J403$"BOP.Weight"))
+    names(J403_BPValue) <- c("date", names(J203$"BOP.Value"))
+    
+# lets get the final df for analysis 
+
+Final_J203<- 
+      left_join(Return_df,
+                J203_BPWeight %>% gather(Tickers, weight, -date),
+                by = c("date", "Tickers") ) %>% 
+      
+    left_join(.,
+                J203_BPValue %>% gather(Tickers, value_held, -date),
+                by = c("date", "Tickers") ) %>% 
+      
+      left_join(.,
+                J203_Contribution %>% gather(Tickers, Contribution, -date),
+                by = c("date", "Tickers"))
+
+Final_J403 <- 
+        left_join(Return_df,
+                J403_BPWeight %>% gather(Tickers, weight, -date),
+                by = c("date", "Tickers") ) %>% 
+      
+    left_join(.,
+                J403_BPValue %>% gather(Tickers, value_held, -date),
+                by = c("date", "Tickers") ) %>% 
+      
+      left_join(.,
+                J403_Contribution %>% gather(Tickers, Contribution, -date),
+                by = c("date", "Tickers"))
+
+Final_J203 <- 
+    Final_J203 %>% group_by(date) %>% summarise(PortfolioReturn = sum(Return*weight, na.rm =TRUE)) %>% 
+      filter(PortfolioReturn != 0)
+      
+# Calculate Portfolio Returns:
+Final_J403 <- 
+    Final_J403 %>% group_by(date) %>% summarise(PortfolioReturn = sum(Return*weight, na.rm =TRUE)) %>% 
+      filter(PortfolioReturn != 0)
+```
+
+
+# some analysis 
+
+```{r}
+
+# cunmulative returns 
+
+Cum_J203 <- 
+Final_J203%>%
+    mutate(cumreturn_j203 = (cumprod(1 + PortfolioReturn))) %>% 
+  mutate(cumreturn_j203 = cumreturn_j203 / first(cumreturn_j203)) %>% select(-PortfolioReturn)
+
+Cum_J403 <- 
+Final_J403 %>% 
+    mutate(cumreturn_j403 = (cumprod(1 + PortfolioReturn))) %>% 
+    mutate(cumreturn_j403 = cumreturn_j403 / first(cumreturn_j403)) %>% select(-PortfolioReturn)
+
+Cum_all <- 
+  left_join(Cum_J203, Cum_J403, by = "date") %>% gather(Type, ROI, -date) 
+
+# Now let's plot the wealth index (if you invested R100 in each) of the two portfolios::
+
+Cum_all  %>%
+  ggplot() +
+  geom_line(aes(date, ROI, color = Type))+labs(subtitle = "Cumulative return for the ALSI and SWIX ", 
+    x = "", y = "Cumulative Return") + 
+    fmx_cols() + 
+fmxdat::theme_fmx(subtitle.size = ggpts(30))
+
+```
+
+
+```{r}
+J203_BPWeight %>% tbl_xts() %>% .[endpoints(.,'months')] %>% chart.StackedBar()
+J403_BPWeight %>% tbl_xts() %>% .[endpoints(.,'months')] %>% chart.StackedBar()
+```
+
+
+
+```{r }
+# Getting Risk Estimates
+
+tabdownside <-
+  table.DownsideRisk(left_join(Final_J203 , 
+                               Final_J403, 
+                               by = "date") %>% tbl_xts(.), 
+                     ci = 0.95, Rf=0, MAR=0)
+tabdownside <- tabdownside[c(1,5,7,8:11),]
+ 
+
+tabdownside %>% data.frame() %>% tibble::rownames_to_column() %>% 
+gt() %>% 
+        tab_header(title = glue::glue("Risk Estimates")) %>% 
+      fmt_percent(
+      columns = 2:3,
+      decimals = 2
+    )
+```
+
+
+## Volatility Analysis
+
+The performance during low and high USD ZAR volatility is very similar. The SWIX is very slightly more risky.
+
+
+## Capped compared to Uncapped Performance
+
+From the figure, it can be seen that the uncapped performance of the ALSI and SWIX indices outperforms the capped performance. The ALSI is capped at 10\% and the SWIX at 6\%
+
+```{r q2_3, warning=FALSE}
+
+# Construct Capped Portfolio for J203 and J403 
+
+filtered_ALSI <- ALSI %>% 
+filter(date %in% RebDays) %>% 
+# Now we have to distinguish rebalances - to create something
+# to group by:
+mutate(RebalanceTime = format(date, "%Y%B")) %>% 
+    select(date, Tickers, Return, J203, RebalanceTime) %>% 
+    rename(weight = J203) %>% 
+    mutate(weight = coalesce(weight , 0))
+
+
+Proportional_Cap_Foo <- function(df_Cons, W_Cap = 0.08){
+  
+  # Let's require a specific form from the user... Alerting when it does not adhere this form
+  if( !"weight" %in% names(df_Cons)) stop("... for Calc capping to work, provide weight column called 'weight'")
+  
+  if( !"date" %in% names(df_Cons)) stop("... for Calc capping to work, provide date column called 'date'")
+  
+  if( !"Tickers" %in% names(df_Cons)) stop("... for Calc capping to work, provide id column called 'Tickers'")
+
+  # First identify the cap breachers...
+  Breachers <- 
+    df_Cons %>% filter(weight > W_Cap) %>% pull(Tickers)
+  
+  # Now keep track of breachers, and add to it to ensure they remain at 10%:
+  if(length(Breachers) > 0) {
+    
+    while( df_Cons %>% filter(weight > W_Cap) %>% nrow() > 0 ) {
+      
+      
+      df_Cons <-
+        
+        bind_rows(
+          
+          df_Cons %>% filter(Tickers %in% Breachers) %>% mutate(weight = W_Cap),
+          
+          df_Cons %>% filter(!Tickers %in% Breachers) %>% 
+            mutate(weight = (weight / sum(weight, na.rm=T)) * (1-length(Breachers)*W_Cap) )
+          
+        )
+      
+      Breachers <- c(Breachers, df_Cons %>% filter(weight > W_Cap) %>% pull(Tickers))
+      
+    }
+
+    if( sum(df_Cons$weight, na.rm=T) > 1.1 | sum(df_Cons$weight, na.rm=T) < 0.9 | max(df_Cons$weight, na.rm = T) > W_Cap) {
+      
+      stop( glue::glue("For the Generic weight trimming function used: the weight trimming causes non unit 
+      summation of weights for date: {unique(df_Cons$date)}...\n
+      The restriction could be too low or some dates have extreme concentrations...") )
+      
+    }
+    
+  } else {
+    
+  }
+  
+  df_Cons
+  
+  }
+  
+# Apply  10% Cap
+Capped_df <- 
+filtered_ALSI %>% 
+group_split(RebalanceTime) %>% 
+map_df(~Proportional_Cap_Foo(., W_Cap = 0.1) ) %>% select(-RebalanceTime)
+ 
+ALSI_wts <- Capped_df %>% tbl_xts(cols_to_xts = weight, spread_by = Tickers)
+
+ALSI_rts <- ALSI %>% 
+filter(Tickers %in% unique(Capped_df$Tickers)) %>% 
+tbl_xts(cols_to_xts = Return, spread_by = Tickers)
+
+ALSI_wts[is.na(ALSI_wts)] <- 0
+
+ALSI_rts[is.na(ALSI_rts)] <- 0
+
+ALSI_cap <- rmsfuns::Safe_Return.portfolio(R = ALSI_rts, weights = ALSI_wts, 
+    lag_weights = T) %>% 
+xts_tbl() %>% 
+rename(ALSI = portfolio.returns)
+
+#  SWIX turn 
+
+filtered_SWIX <- ALSI %>% 
+filter(date %in% RebDays) %>% 
+mutate(RebalanceTime = format(date, "%Y%B")) %>% 
+    select(date, Tickers, Return, J403, RebalanceTime) %>% 
+    rename(weight = J403) %>% 
+    mutate(weight = coalesce(weight , 0))
+  
+# Apply  5% Cap using the function 
+Capped_df <- 
+filtered_SWIX %>% 
+group_split(RebalanceTime) %>% 
+map_df(~Proportional_Cap_Foo(., W_Cap = 0.05) ) %>% select(-RebalanceTime)
+ 
+SWIX_wts <- Capped_df %>% tbl_xts(cols_to_xts = weight, spread_by = Tickers)
+
+SWIX_rts <- ALSI %>% 
+filter(Tickers %in% unique(Capped_df$Tickers)) %>% 
+tbl_xts(cols_to_xts = Return, spread_by = Tickers)
+
+SWIX_wts[is.na(SWIX_wts)] <- 0
+
+SWIX_rts[is.na(SWIX_rts)] <- 0
+
+SWIX_cap <- rmsfuns::Safe_Return.portfolio(R = SWIX_rts, weights = SWIX_wts, 
+    lag_weights = T) %>% 
+xts_tbl() %>% 
+rename(SWIX = portfolio.returns)
+
+
+# visuliasze in one plot
+
+capped_indices <- left_join(ALSI_cap, SWIX_cap, by = "date") %>% 
+    pivot_longer(c("ALSI", "SWIX"), names_to = "Meth", values_to = "returns")
+
+capped_indices %>% 
+    group_by(Meth) %>%
+    mutate(Idx = cumprod(1 + returns)) %>% 
+ggplot() + 
+geom_line(aes(date, Idx, colour = Meth), alpha = 0.8) + 
+labs(subtitle = "ALSI capped at 10% and SWIX at 6%", 
+    x = "", y = "Return on Investment") + 
+    fmx_cols() + 
+fmxdat::theme_fmx(subtitle.size = ggpts(20))
+
+```
+# question 5
+
+
+```{r}
+# loadings 
+library(tidyverse)
+library(readr)
+library(fmxdat)
+
+
+crny <- read_rds("data/Monthly_zar.rds") # couldnt find another ZAR proxy so had to use this one 
+Carry <- read_rds("data/cncy_Carry.rds") 
+value <- read_rds("data/cncy_value.rds") 
+Vol <- read_rds("data/IV.rds")
+bbdxy <- read_rds("data/bbdxy.rds")
+```
+# Defintions first
+
+# cncy value
+
+used to gauge relative value. The FX PPP index reflects the return of being long
+the 3 currencies with the highest rank (undervalued currencies) against being short the
+3 currencies with the lowest rank (overvalued currencies) within G10 currency
+universe. The Bloomberg code for this factor is DBPPPUSF Index, this is the same as carry from Duestche. So will use both proxies for robustness
+
+# IV 
+
+Currency Implied volatility is, in principle, similar to the construction of the VIX index. It uses both put and call option premiums to guage the market's forward implied volatility of the currency. A higher value indicates the market foresees higher future volatility for a currency.
+
+# BBDXY  
+
+The Bloomberg Dollar Spot Index (BBDXY) tracks the performance of a basket of 10 leading global currencies versus the U.S. Dollar. It has a dynamically updated composition and represents a diverse set of currencies that are important from trade and liquidity perspectives..
+
+# Goal
+
+DXY and ZAR returns visualisation will be interesting, then perform a rolling correlation between the two.
+
+comapre the value of carry trading, proxied by cncy value and returns overtime with the rand. Then identifying common risk sources amongst the two. Ideally we should be able to see some comovement between DBPPPUSF and the ZAR. 
+
+the vol measure will be useful for checking ZAR performance during hi vol periods and low vol periods. In essence, create a function that changes the stratification rule, include in a table to test the overall efficacy of the 
+
+
+```{r}
+# lets create a function for labelling market periods in a dataframe
+mkt_label <-  function(Vol_data, Roll_period, Upper_percentile, Lower_percentile){
+ vol_data <- Vol_data %>% rename(px = Price) %>% 
+  mutate(ret = log(px)-log(lag(px)), RollSD = RcppRoll::roll_sd(1 + ret, Roll_period, fill = NA, align = "right") * 
+             sqrt(Roll_period)) %>% 
+    filter(!is.na(RollSD))
+
+# # get the top quartile and bottom quartile
+ strat_df <- vol_data %>% mutate(topQ = quantile(RollSD, probs = Upper_percentile), 
+               botQ = quantile(RollSD, probs = Lower_percentile),
+               Strat = ifelse(RollSD >= topQ, "HiVol", 
+                           ifelse(RollSD <= botQ, "LowVol", "Normal_Vol"))) %>%  
+   mutate(YM = format(date, "%y %m")) %>% group_by(YM ) %>%  filter(date == last(date)) %>% ungroup()
+ strat_df}
+
+# the stratified df 
+strat_df <- Vol %>% mkt_label(., 12, 0.95, .05)
+ 
+# extract our volatility dates 
+hi_vol <- strat_df %>% filter(Strat == "HiVol") %>% select(date) %>% pull()
+
+lo_vol <- strat_df %>% filter(Strat == "LowVol") %>% select(date) %>% pull()
+
+# different seeting 
+
+# the stratified df 
+strat_df_2 <- Vol %>% mkt_label(., 24, 0.95, .05)
+ 
+# extract our volatility dates 
+hi_vol_2 <- strat_df_2 %>% filter(Strat == "HiVol") %>% select(date) %>% pull()
+
+lo_vol_2 <- strat_df_2 %>% filter(Strat == "LowVol") %>% select(date) %>% pull()
+
+# I want to see how the performance of the ZAR changes with longer vol periods
+```
+
+# ZAR Characteristics
+
+- first, a rise in the change of the currency level is considered as a depreciation, given that the base is USD. 
+- second I consider the rolling 3 year return for the ZAR then move to assessing its return in hi and lo vol periods.
+
+```{r}
+#  lets calculate monthly SA returns 
+
+
+# stratified returns 
+
+stratifier <- function(df, period_dates, description) {
+  result <- df %>%
+    arrange(date) %>%
+    mutate(
+      ret = log(value) - log(lag(value)) - 1
+    ) %>%
+    filter(date %in% period_dates) %>%
+    summarise(
+      N = n(),
+      `Period Return` = mean(cumprod(1 + ret)^12) / N,
+      `SD` = sd(cumprod(1 + ret)^12) / sqrt(N),
+      Period = description
+    )
+
+  result
+}
+
+bind_rows(stratifier(crny, hi_vol, "High Vol with short roller"), 
+          stratifier(crny, lo_vol, "Low Vol with short roller"), 
+          stratifier(crny, hi_vol_2, "High Vol with long roller"), 
+          stratifier(crny, lo_vol_2, "Low Vol with long roller"))
+
+```
+
+# ZAR Against The World 
+
+Lets find out rolling correlation between ZAR, DXY and the Value Strategies
+
+Then concldude by finding structure volatility 
+```{r}
+# lets put all the indices the one df and make all monthly
+
+ZAR <- crny %>% rename(ZAR.px = value) %>% select(-Tickers)
+
+Carry1 <- Carry %>% rename(carry1.px = Price) %>% mutate(YM = format(date, "%y %b")) %>% group_by(YM) %>% filter(date == last(date)) %>% ungroup() %>% select(-Name, -YM)
+
+Carry2 <- value %>% rename(carry2.px = Price)%>% mutate(YM = format(date, "%y %b")) %>% group_by(YM) %>% filter(date == last(date)) %>% ungroup()%>% select(-Name, -YM)
+
+DXY <- bbdxy %>% rename(dxy.px = Price)%>% mutate(YM = format(date, "%y %b")) %>% group_by(YM) %>% filter(date == last(date)) %>% ungroup() %>% select(-Name, -YM)
+
+data_1 <- left_join(Carry1, left_join(Carry2, DXY, "date"), "date") %>% filter(!is.na(dxy.px)) # the data doesnt match, didnt include ZAR in here so to avoid losing time used an alterntive approach
+  
+
+# a function for the rolling returns that visualises individual performnace 
+
+plot_df <- function(df, Rolling_period) {
+  df <- df %>%
+    arrange(date) %>%
+    gather(name, px, -date) %>%
+    mutate(ret = log(px) - log(lag(px))) %>%
+    mutate(RollRets = RcppRoll::roll_prod(1 + ret, Rolling_period, fill = NA, align = "right")^(12 / Rolling_period) - 1) %>%
+    group_by(date) %>%
+    filter(any(!is.na(RollRets))) %>%
+    ungroup() %>% select(-ret, -px)
+  
+  return(df)
+}
+
+plot_data <- ZAR %>% plot_df(., 60) %>% filter(!is.na(RollRets)) %>% filter(date > lubridate::ymd(20071230))
+
+plot_data_2 <- data_1 %>% plot_df(., 60)%>%  filter(!is.na(RollRets)) %>% filter(date > lubridate::ymd(20071230))
+
+g <- ggplot() + 
+  geom_line(data = plot_data, aes(date, RollRets, color = name), alpha = 0.7, size = 1.25) + 
+  geom_line(data = plot_data_2, aes(date, RollRets, color = name), alpha = 0.7 ) +
+  labs(
+    title = "Performance Relationship",
+    subtitle = " Rolling 60 Month Returns for ZAR vs Carry and USD Performnce",
+    x = "",
+    y = "Rolling 3-year Returns (Ann.)",
+    caption = "Note:\n Authors Calculations"
+  ) + 
+  theme_fmx(title.size = ggpts(30), subtitle.size = ggpts(15), caption.size = ggpts(25), CustomCaption = TRUE) +
+  fmx_cols()
+
+# Assuming finplot is a function for additional financial plotting settings
+finplot(g, x.date.dist = "3 year", x.date.type = "%Y", x.vert = TRUE, y.pct = TRUE, y.pct_acc = 1)
+
+```
+
+- higher levels of DXY dont equate to higher rand valuation. We see that moments when the DXY depreciated the SA Rand appreciated
+
+- there is a tigher relationship between the ZAR returns and those of other carry strategies. The relatioonship is closest with the carry2, the index constructed by BB. 
+
+- so that answers statement 2, statement one cant add much since I dont have that currency dataframe to model volatilities accross currrencies
+
+# question 6 
+
+# objetive 
+
+optimize a portfolio given the constraints listed below and tweak depending on own analysis. 
+
+# cnstraints 
+
+- long only 
+- When using covariance and mean forecasts, use a look-back of less than 3 years;
+- Do not hold any assets with less than 3 years’ returns data;
+- Apply Quarterly Rebalancing;
+- Limit exposure to Bonds and credit instruments at 25%;
+- Limit exposure to Equities at 60%;
+- Limit single asset exposure at 40%;
+
+```{r}
+# loadings
+
+pacman::p_load(tidyverse)
+pacman::p_load(RiskPortfolios);pacman::p_load(fitHeavyTail)
+pacman::p_load(quadprog)
+StartDate <- lubridate::ymd(20150101)
+
+# Data 
+
+MAA <- read_rds("data/MAA.rds") %>% filter(!Ticker %in% c("DXY Index", 'BCOMTR Index', "ADXY Index")) %>% select(-Name)
+
+# seems like the above could be used to stratify returns 
+
+# read_rds("data/msci.rds") %>% select(Name) %>% distinct()
+
+msci <-
+read_rds("data/msci.rds") %>%
+filter(Name %in% c("MSCI_ACWI", "MSCI_USA", "MSCI_RE", "MSCI_Jap")) %>%  rename(Ticker = Name)
+
+# One dataframe
+
+combined.data <- bind_rows(MAA, msci) 
+
+# tickers that existed years ago 
+
+comb_assets_3_years <- combined.data %>% group_by(Ticker) %>% filter(date == as.Date("2020/11/25")) %>% pull(Ticker) %>% unique()
+
+# rebalancing quarter days used for filter 
+
+RebMonths <- c("Mar", "Jun", "Oct", "Dec" )
+
+
+return <- 
+  
+combined.data %>%
+    mutate(M = format(date, "%b"), YM = format(date, "%Y %b")) %>% filter(M %in% RebMonths) %>%filter(Ticker %in% comb_assets_3_years) %>% 
+  group_by(Ticker,YM ) %>% 
+  filter(date == last(date)) %>%
+  ungroup() %>% 
+  group_by(Ticker) %>% 
+  mutate(ret = log(Price)- lag(log(Price))) %>% slice(-1) %>%  ungroup() %>%select(date, Ticker, ret) %>% 
+  spread(Ticker, ret) %>% filter(date > ymd(20101231))
+
+
+# impute returns for missing dates
+
+return <- impute_missing_returns(return, 'Drawn_Distribution_Collective')
+
+# Using risk portfolos I will determing the mean and covariance matric 
+
+return_mat_Nodate <- data.matrix(return[, -1])
+
+Sigma <- RiskPortfolios::covEstimation(return_mat_Nodate)
+
+Mu <- return %>% summarise(across(-date, ~prod(1+.)^(1/n())-1)) %>% purrr::as_vector()
+
+# to guard against the risk of heavy tails I use the heavy tail package and estimate new mean and covariance matrix
+
+HTT <- fitHeavyTail::fit_mvt(return_mat_Nodate)
+mu <- return %>% summarise(across(-date, ~prod(1+.)^(1/n())-1)) %>% purrr::as_vector()
+# mu <- HTT$mu
+Sigma <- HTT$cov
+# Ensure order is the same for mu and Sigma (some optimizers are sensitive to ordering... :( )
+mu <- mu[colnames(Sigma)] 
+# lastly all covariance matrices need to be positive definite 
+
+Sigma <- as.matrix( Matrix::nearPD(Sigma)$mat)
+```
+# lets add linear constraints and solve the model
+
+```{r}
+
+# the settings to the optimizer, love quadprog for this 
+
+NStox <- ncol(return_mat_Nodate)
+LB = 0.01
+UB = 0.4
+Eq = 0.6 # max equity exposure
+Bonds = 0.25 # max FI exposure
+meq = 1
+
+
+# the hard stuff now, get the matrices 
+
+# AMAT, constraints to be respected when optimizing
+# meq are inequality constarints 
+# 
+
+Eq_mat <- rbind(matrix(0, nrow = 6, ncol = 4),
+                -diag(4))
+
+FI_mat <- rbind(matrix(0, 4, 6), 
+                 -diag(6))
+
+Amat <- cbind(1, diag(NStox), -diag(NStox), Eq_mat, FI_mat)
+
+# BVEC for the boc constraints 
+bvec <- c(1, rep(LB, NStox), -rep(UB, NStox), -rep(Eq, 4), -rep(Bonds, 6))
+
+  w.opt <-
+    quadprog::solve.QP(Dmat = Sigma,
+                            dvec = mu,
+                            Amat = Amat,
+                            bvec = bvec,
+                            meq = meq)$solution
+
+ result.QP <- tibble(stocks = colnames(Sigma), weight = w.opt)
+ 
+ # thats a wrap
+```
+
+
+
+
+> NB - this README (at the root of your folder) - is what I will be grading. 
+
+> Space out code per question in this README - detailing your steps and thinking.
+
+> Folders in Questions/... should not contain READMEs - I will only be looking at their output (pdf / html).
+
+> THIS README should contain and describe the code you used in your analyses.
+
+
+Good luck and enjoy the practical!
+
+Nico
+

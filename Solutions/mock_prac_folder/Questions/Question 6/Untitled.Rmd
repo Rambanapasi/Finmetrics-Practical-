@@ -1,0 +1,79 @@
+---
+title: "q6readme"
+author: "Gabriel Rambanapasi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# objetive 
+
+optimize a portfolio given the constraints listed below and tweak depending on own analysis 
+
+# cnstraints 
+
+- long only 
+- When using covariance and mean forecasts, use a look-back of less than 3 years;
+- Do not hold any assets with less than 3 years’ returns data;
+- Apply Quarterly Rebalancing;
+- Limit exposure to Bonds and credit instruments at 25%;
+- Limit exposure to Equities at 60%;
+- Limit single asset exposure at 40%;
+
+```{r}
+# loadings
+
+pacman::p_load(tidyverse)
+pacman::p_load(RiskPortfolios);pacman::p_load(fitHeavyTail)
+;pacman::p_load(quadprog)
+StartDate <- lubridate::ymd(20150101)
+
+# Data 
+
+MAA <- read_rds("data/MAA.rds")
+# seems like the above could be used to stratify returns 
+
+msci <-
+read_rds("data/msci.rds") %>%
+filter(Name %in% c("MSCI_ACWI", "MSCI_USA", "MSCI_RE", "MSCI_Jap"))
+
+# get monthly returns 
+
+returns <- msci %>% arrange(date) %>% 
+  mutate(YM = format(date, "%b %y")) %>% 
+  group_by(Name,YM ) %>% 
+  filter(date == last(date)) %>%
+  ungroup() %>% 
+  group_by(Name) %>% 
+  mutate(ret = log(Price)- lag(log(Price))) %>% slice(-1) %>%  ungroup() %>%select(date, Name, ret) %>% spread(., Name, ret)
+
+
+# impute returns for missing dates
+
+source("code/")
+
+return <- impute_missing_returns(returns, 'Drawn_Distribution_Collective')
+
+# Using risk portfolos I will determing the mean and covariance matric 
+
+return_mat_Nodate <- data.matrix(return[, -1])
+
+Sigma <- RiskPortfolios::covEstimation(return_mat_Nodate)
+
+Mu <- return %>% summarise(across(-date, ~prod(1+.)^(1/n())-1)) %>% purrr::as_vector()
+
+# to guard against the risk of heavy tails I use the heavy tail package and estimate new mean and covariance matrix
+
+HTT <- fitHeavyTail::fit_mvt(return_mat_Nodate)
+mu <- return %>% summarise(across(-date, ~prod(1+.)^(1/n())-1)) %>% purrr::as_vector()
+# mu <- HTT$mu
+Sigma <- HTT$cov
+# Ensure order is the same for mu and Sigma (some optimizers are sensitive to ordering... :( )
+mu <- mu[colnames(Sigma)] 
+
+
+# lastly all covariance matrices need to be positive definite 
+
+Sigma <- as.matrix( Matrix::nearPD(Sigma)$mat)
+
+```
+

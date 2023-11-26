@@ -1,0 +1,179 @@
+---
+title: "q5rmd"
+author: "Gabriel Rambanapasi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+# loadings 
+library(tidyverse)
+library(readr)
+library(fmxdat)
+
+
+crny <- read_rds("data/Monthly_zar.rds") # couldnt find another ZAR proxy so had to use this one 
+Carry <- read_rds("data/cncy_Carry.rds") 
+value <- read_rds("data/cncy_value.rds") 
+Vol <- read_rds("data/IV.rds")
+bbdxy <- read_rds("data/bbdxy.rds")
+```
+# Defintions first
+
+# cncy value
+
+used to gauge relative value. The FX PPP index reflects the return of being long
+the 3 currencies with the highest rank (undervalued currencies) against being short the
+3 currencies with the lowest rank (overvalued currencies) within G10 currency
+universe. The Bloomberg code for this factor is DBPPPUSF Index, this is the same as carry from Duestche. So will use both proxies for robustness
+
+# IV 
+
+Currency Implied volatility is, in principle, similar to the construction of the VIX index. It uses both put and call option premiums to guage the market's forward implied volatility of the currency. A higher value indicates the market foresees higher future volatility for a currency.
+
+# BBDXY  
+
+The Bloomberg Dollar Spot Index (BBDXY) tracks the performance of a basket of 10 leading global currencies versus the U.S. Dollar. It has a dynamically updated composition and represents a diverse set of currencies that are important from trade and liquidity perspectives..
+
+# Goal
+
+DXY and ZAR returns visualisation will be interesting, then perform a rolling correlation between the two.
+
+comapre the value of carry trading, proxied by cncy value and returns overtime with the rand. Then identifying common risk sources amongst the two. Ideally we should be able to see some comovement between DBPPPUSF and the ZAR. 
+
+the vol measure will be useful for checking ZAR performance during hi vol periods and low vol periods. In essence, create a function that changes the stratification rule, include in a table to test the overall efficacy of the 
+
+
+```{r}
+# lets create a function for labelling market periods in a dataframe
+mkt_label <-  function(Vol_data, Roll_period, Upper_percentile, Lower_percentile){
+ vol_data <- Vol_data %>% rename(px = Price) %>% 
+  mutate(ret = log(px)-log(lag(px)), RollSD = RcppRoll::roll_sd(1 + ret, Roll_period, fill = NA, align = "right") * 
+             sqrt(Roll_period)) %>% 
+    filter(!is.na(RollSD))
+
+# # get the top quartile and bottom quartile
+ strat_df <- vol_data %>% mutate(topQ = quantile(RollSD, probs = Upper_percentile), 
+               botQ = quantile(RollSD, probs = Lower_percentile),
+               Strat = ifelse(RollSD >= topQ, "HiVol", 
+                           ifelse(RollSD <= botQ, "LowVol", "Normal_Vol"))) %>%  
+   mutate(YM = format(date, "%y %m")) %>% group_by(YM ) %>%  filter(date == last(date)) %>% ungroup()
+ strat_df}
+
+# the stratified df 
+strat_df <- Vol %>% mkt_label(., 12, 0.95, .05)
+ 
+# extract our volatility dates 
+hi_vol <- strat_df %>% filter(Strat == "HiVol") %>% select(date) %>% pull()
+
+lo_vol <- strat_df %>% filter(Strat == "LowVol") %>% select(date) %>% pull()
+
+# different seeting 
+
+# the stratified df 
+strat_df_2 <- Vol %>% mkt_label(., 24, 0.95, .05)
+ 
+# extract our volatility dates 
+hi_vol_2 <- strat_df_2 %>% filter(Strat == "HiVol") %>% select(date) %>% pull()
+
+lo_vol_2 <- strat_df_2 %>% filter(Strat == "LowVol") %>% select(date) %>% pull()
+
+# I want to see how the performance of the ZAR changes with longer vol periods
+```
+
+# ZAR Characteristics
+
+- first, a rise in the change of the currency level is considered as a depreciation, given that the base is USD. 
+- second I consider the rolling 3 year return for the ZAR then move to assessing its return in hi and lo vol periods.
+
+```{r}
+#  lets calculate monthly SA returns 
+
+
+# stratified returns 
+
+stratifier <- function(df, period_dates, description) {
+  result <- df %>%
+    arrange(date) %>%
+    mutate(
+      ret = log(value) - log(lag(value)) - 1
+    ) %>%
+    filter(date %in% period_dates) %>%
+    summarise(
+      N = n(),
+      `Period Return` = mean(cumprod(1 + ret)^12) / N,
+      `SD` = sd(cumprod(1 + ret)^12) / sqrt(N),
+      Period = description
+    )
+
+  result
+}
+
+bind_rows(stratifier(crny, hi_vol, "High Vol with short roller"), 
+          stratifier(crny, lo_vol, "Low Vol with short roller"), 
+          stratifier(crny, hi_vol_2, "High Vol with long roller"), 
+          stratifier(crny, lo_vol_2, "Low Vol with long roller"))
+
+```
+
+# ZAR Against The World 
+
+Lets find out rolling correlation between ZAR, DXY and the Value Strategies
+
+Then concldude by finding structure volatility 
+```{r}
+# lets put all the indices the one df and make all monthly
+
+ZAR <- crny %>% rename(ZAR.px = value) %>% select(-Tickers)
+
+Carry1 <- Carry %>% rename(carry1.px = Price) %>% mutate(YM = format(date, "%y %b")) %>% group_by(YM) %>% filter(date == last(date)) %>% ungroup() %>% select(-Name, -YM)
+
+Carry2 <- value %>% rename(carry2.px = Price)%>% mutate(YM = format(date, "%y %b")) %>% group_by(YM) %>% filter(date == last(date)) %>% ungroup()%>% select(-Name, -YM)
+
+DXY <- bbdxy %>% rename(dxy.px = Price)%>% mutate(YM = format(date, "%y %b")) %>% group_by(YM) %>% filter(date == last(date)) %>% ungroup() %>% select(-Name, -YM)
+
+data_1 <- left_join(Carry1, left_join(Carry2, DXY, "date"), "date") %>% filter(!is.na(dxy.px)) # the data doesnt match, didnt include ZAR in here so to avoid losing time used an alterntive approach
+  
+
+# a function for the rolling returns that visualises individual performnace 
+
+plot_df <- function(df, Rolling_period) {
+  df <- df %>%
+    arrange(date) %>%
+    gather(name, px, -date) %>%
+    mutate(ret = log(px) - log(lag(px))) %>%
+    mutate(RollRets = RcppRoll::roll_prod(1 + ret, Rolling_period, fill = NA, align = "right")^(12 / Rolling_period) - 1) %>%
+    group_by(date) %>%
+    filter(any(!is.na(RollRets))) %>%
+    ungroup() %>% select(-ret, -px)
+  
+  return(df)
+}
+
+plot_data <- ZAR %>% plot_df(., 60) %>% filter(!is.na(RollRets)) %>% filter(date > lubridate::ymd(20071230))
+
+plot_data_2 <- data_1 %>% plot_df(., 60)%>%  filter(!is.na(RollRets)) %>% filter(date > lubridate::ymd(20071230))
+
+g <- ggplot() + 
+  geom_line(data = plot_data, aes(date, RollRets, color = name), alpha = 0.7, size = 1.25) + 
+  geom_line(data = plot_data_2, aes(date, RollRets, color = name), alpha = 0.7 ) +
+  labs(
+    title = "Performance Relationship",
+    subtitle = " Rolling 60 Month Returns for ZAR vs Carry and USD Performnce",
+    x = "",
+    y = "Rolling 3-year Returns (Ann.)",
+    caption = "Note:\n Authors Calculations"
+  ) + 
+  theme_fmx(title.size = ggpts(30), subtitle.size = ggpts(15), caption.size = ggpts(25), CustomCaption = TRUE) +
+  fmx_cols()
+
+# Assuming finplot is a function for additional financial plotting settings
+finplot(g, x.date.dist = "3 year", x.date.type = "%Y", x.vert = TRUE, y.pct = TRUE, y.pct_acc = 1)
+
+```
+
+- higher levels of DXY dont equate to higher rand valuation. We see that moments when the DXY depreciated the SA Rand appreciated
+
+- there is a tigher relationship between the ZAR returns and those of other carry strategies. The relatioonship is closest with the carry2, the index constructed by BB. 
+
+- so that answers statement 2, statement one cant add much since I dont have that currency dataframe to model volatilities accross currrencies

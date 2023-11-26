@@ -1,0 +1,76 @@
+---
+title: "question 1 readme"
+author: "Gabriel Rambanapasi"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# question 1 
+
+```{r}
+ASISA <- read_rds("data/ASISA_Rets.rds")
+BM <- read_rds("data/Capped_SWIX.rds") 
+AI <- read_rds("data/AI_Max_Fund.rds")
+
+# clean up the data to merge the datasets, its already monthly data
+ASISA <- ASISA %>% select(date, Fund, Returns)
+AI <- AI %>% mutate(`Fund` = " AI") %>% rename(Returns = `AI_Fund`) %>%  select(date, Fund, Returns )
+BM <- BM %>% rename( Fund = "Tickers")
+```
+
+- im going to show after fee performance for an actively managed fund, AI fund comapres to that of the benchmark, the metric of choice here will be the excess returns.
+- going to focus on risk adjusted return using information ratios, to comapre between the active manager and AI fund. 
+- im going to assume a standard indusrty fee of 1.5% for active managers and the AI fund.
+
+```{r}
+
+# we have gross returns, lets subtract fees to get net of fee returns 
+
+# create a function, that calculates returns net of fees
+
+fee_calc <- function(df, fee) {
+  
+  # annualize the rate 
+  feeconverter <- function(fee) { 
+    fee_monthly = (1 + fee / 10000)^(1 / 12) - 1
+    fee_monthly
+  }
+  
+  df <- df %>% 
+    mutate(`Net of fees` = Returns - feeconverter(fee))  # Corrected the feeconverter argument
+  
+  return(df)  # Explicitly return the modified dataframe
+}
+
+topfunds <- ASISA %>% 
+  group_by(Fund) %>% 
+  summarize(`average return` = mean(Returns)) %>% 
+  arrange(desc(`average return`)) %>% 
+  filter(rank(desc(`average return`)) <= 10) %>% pull(Fund)
+
+# make asisa an equally weight active fund. they comapre with your own AI fund. 
+
+fund_comp <- bind_rows(
+  BM,
+  AI %>% fee_calc(150),
+  ASISA %>% fee_calc(150) %>% filter(Fund %in% topfunds)
+) %>%arrange(date) %>% filter(date>=ymd(20040304)) %>% 
+  group_by(Fund) %>% 
+  mutate(`Net of fees` = coalesce(`Net of fees`, Returns),
+         Net.ret = coalesce(`Net of fees`, 0),
+         `roi` = cumprod(1 + Net.ret)) %>% 
+  ungroup() %>% select(date, Fund, roi)
+  
+
+fund_comp %>%
+  ggplot(aes(x = date, y = roi, color = Fund)) +
+  geom_line() +
+  labs(title = "Cumulative Return of Funds Over Time",
+       x = "Date",
+       y = "Cumulative Return") +
+  theme_minimal()
+```
+
+
+
+
