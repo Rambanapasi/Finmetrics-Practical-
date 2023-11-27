@@ -9,7 +9,7 @@ output:
 - im going to show the after gross and new fee performance for an actively managed funds to that of the SWIX.  
 
 - going to simply take the funds that have survived the longest to have information on full performance versus the benchmark. Before and After fees ofcourse
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 # loadings 
 library(pacman )
 p_load("tidyverse" ,'gt', 'PerformanceAnalytics', 'quadprog', 'fmxdat', 'kableExtra','readr')
@@ -40,7 +40,7 @@ fee_calc <- function(df, fee) {
 ```
 
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 # lets find worthy compaarables in terms of survivors in funds that can be used to make our case 
 # and get  the best, worst and median performing funds 
 
@@ -101,7 +101,7 @@ kable(Net_of_top_managers)
 ```
 - from this we see that top managers have the ability to consistently beat the benchmark that returns to investors over a long investment would have resulted in higher returns whter this was gross or net of fees 
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 # now for the distributional arguments
 
 # top manager
@@ -1123,7 +1123,7 @@ bvec <- c(1, rep(LB, NStox), -rep(UB, NStox), -rep(Eq, 4), -rep(Bonds, 6))
 
 - will use linear regressions estimated via lm  and Machine learning.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # loadings 
 ASISA_flows <- read_rds("data/ASISA_Flows.rds") %>% select(-Index, -FoF)
 Rets <- read_rds("data/ASISA_Rets.rds") %>% select(-Index, -FoF)
@@ -1187,7 +1187,7 @@ data$Flows <- scale(data$Flows)
 ```
 
 
-```{r}
+```{rmessage=FALSE, warning=FALSE}
 
 # lets model 
 if (!require("pacman")) install.packages("pacman")
@@ -1218,7 +1218,7 @@ summary(model1)
 - from the summary, we can say that when returns are 0, flows are negative. This makes sense as investors will look to other sources of return, such as other assset classes. 
 
 - using an ML algorthm, I train and test prediction from model 1 out of sample, it shows statitiscal significance in the fcat that Returns do predict Flows, thus positive past  returns do result in flows to managers of said return. 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # second approach 
 library(tidyfit)
 models <- data %>% 
@@ -1233,7 +1233,7 @@ estimates <- loadings %>%
   select(Fund, term, estimate) %>% 
   spread(term, estimate) %>% drop_na(Flows, '(Intercept)') %>% 
   ggplot(aes(Flows, '(Intercept)')) +
-  geom_point() # ran out of talent here and time, wanted but i wanted to show a structural relationship between flows and return after more robust estimation 
+  geom_point() # ran out of talent here and time, but i wanted to show a structural relationship between flows and return after more robust estimation 
 
 ```
 
