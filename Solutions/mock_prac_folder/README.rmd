@@ -3,22 +3,13 @@ output:
   md_document:
     variant: markdown_github
 ---
-
-```{r}
-# HTML Texevier:
-Texevier::create_template_html(directory = "Questions",
-                          template_name = "Question3"
-)
-
-```
-
-# question 1 
+# Question 1 
 
 # Goal 
 - im going to show the after gross and new fee performance for an actively managed funds to that of the SWIX.  
 
 - going to simply take the funds that have survived the longest to have information on full performance versus the benchmark. Before and After fees ofcourse
-```{r}
+```{r warning=FALSE}
 # loadings 
 library(pacman )
 p_load("tidyverse" ,'gt', 'PerformanceAnalytics', 'quadprog', 'fmxdat', 'kableExtra','readr')
@@ -49,7 +40,7 @@ fee_calc <- function(df, fee) {
 ```
 
 
-```{r}
+```{r warning=FALSE}
 # lets find worthy compaarables in terms of survivors in funds that can be used to make our case 
 # and get  the best, worst and median performing funds 
 
@@ -110,7 +101,7 @@ kable(Net_of_top_managers)
 ```
 - from this we see that top managers have the ability to consistently beat the benchmark that returns to investors over a long investment would have resulted in higher returns whter this was gross or net of fees 
 
-```{r}
+```{r warning=FALSE}
 # now for the distributional arguments
 
 # top manager
@@ -144,7 +135,7 @@ topmanager
 
 - from the distribution of returns, the same message is echoes, the really good managers are able to get returns distributions similar to the benchmarks. This could point to skill, so how do the bottom managers compare 
 
-```{r}
+```{r warning=FALSE}
  # bottom managers
 bottom_funds_comparison_to_the_benchmark <- ASISA %>%
   arrange(date) %>%
@@ -187,7 +178,7 @@ kable (Net_of_bottom_managers)
 - unsuprising, the total return on investment is extremely lower than investment in an investment instrument that tracks the benchmark. 
 
 - after fees, it is clear daylight robbery from the part of the managers 
-```{r}
+```{r warning=FALSE}
 # bad manager perfomance
 Monthly_returns <- ASISA %>% 
     filter (Fund %in% bottom_funds) %>% 
@@ -224,10 +215,10 @@ bottommanager
 
 active management promises to consistently deliver superior returns above benchmarks. the results show that whilst this is true for some managers, some do not posssess the skill to deliver on their mandate. 
 
-# question 2
+# Question 2
 
 
-```{r}
+```{r warning=FALSE}
 # loadings
 Indexes <- read_rds("data/Cncy_Hedge_Assets.rds")
 ZAR <- read_rds("data/Monthly_zar.rds")
@@ -248,7 +239,7 @@ ZAR_returns <- ZAR  %>% mutate(px = 1/value, ZAR_return = px /lag(px)-1) %>% sli
 - use the usdzar to get returns for hedged and un hedged portfolios. 
 - graph  returns zar usd and the said portfolio and describe the quadrants by. including text in the plot
 
-```{r}
+```{r warning=FALSE}
 # install.packages("rportfolios")
 library(rportfolios)
 # Disclaminer: This is not the way it was done in the article, but I tried many times and failed dismally,  so I just tried a different way of using random weights with some restrictions. but hopefully I can find some valuable insights 
@@ -409,7 +400,7 @@ ggplot(plot_data, aes(x = ZAR_return, y = Hedged_Return)) +
 fmxdat::theme_fmx(subtitle.size = ggpts(30))
 ```
 
-```{r}
+```{r warning=FALSE}
 # correlation  results 
 
 summary_result <- plot_data %>%
@@ -428,7 +419,7 @@ kable(summary_result_2)
 - similar to the article, despite having a different construction for the portfolio, hedged portfolio performs slight worse than the unhedged portfolio on returns and exhibits higher volatility. 
 
 # Question 3 
-```{r}
+```{r warning=FALSE}
 # loadings 
 pacman::p_load(tbl2xts, PerformanceAnalytics, fmxdat, readr, tidyverse, rportfolios, gt)
 
@@ -441,12 +432,12 @@ RebDays <- read_rds("data/Rebalance_days.rds") %>% filter(Date_Type %in% "Reb Tr
 
 ```
 
-## Sector and Index Analysis
+# Sector and Index Analysis
 
 - to compare methodolgies I will examine the return and risk profile of indexation, as well as, turnover of the methodology (not sure how i can get the latter but I will take a stab at it). 
 
 - so I will compare return drivers by looking at the constitutes at rebalancing periods. For drawdowns comaprison and other risk measures. 
-```{r}
+```{r warning=FALSE}
 # lets set a intial investment amount, so that I can see what was the contribution to returns by asset and see if there was a difference in allocation between the ALSI and SWIX 
 
 Fund_Size_at_Start <- 1000
@@ -562,7 +553,7 @@ Final_J403 <-
 ```
 - now for some performance and risk attribution of the constructed poryfolio
 
-```{r}
+```{r warning=FALSE}
 # cumulative returns 
 
 Cum_J203 <- 
@@ -593,13 +584,13 @@ Cum_J203 %>%
 ```
 
 next I look at compostion of weights, at rebalancing dates. From the results it seems like the SWIX and ALSI have almost identical allocation. There is nothing to tell between the two. 
-```{r}
+```{r warning=FALSE}
 J203_BPWeight %>% tbl_xts() %>% .[endpoints(.,'months')] %>% chart.StackedBar()
 J403_BPWeight %>% tbl_xts() %>% .[endpoints(.,'months')] %>% chart.StackedBar()
 ```
 
 - a deeper risk (table below) butresses the two indexes, they have similar risk attributes. Theres nothing to seperate the two 
-```{r }
+```{r warning=FALSE}
 # Getting Risk Estimates
 
 tabdownside <-
@@ -627,7 +618,7 @@ This should be suprising give very similar return and risk attributes, the portf
 
 Give then caps, i expect that the turnover of the SWIX will be higher thus more costly for an investor tracking that index  
 
-```{r}
+```{r warning=FALSE}
 
 # Construct Capped Portfolio for J203 and J403 
 
@@ -762,7 +753,7 @@ fmxdat::theme_fmx(subtitle.size = ggpts(20))
 # question 5
 
 
-```{r}
+```{r warning=FALSE}
 # loadings 
 library(tidyverse)
 library(readr)
@@ -801,7 +792,7 @@ comapre the value of carry trading, proxied by cncy value and returns overtime w
 the vol measure will be useful for checking ZAR performance during hi vol periods and low vol periods. In essence, create a function that changes the stratification rule, include in a table to test the overall efficacy of the a carry strategy. 
 
 
-```{r}
+```{r warning=FALSE}
 # lets create a function for labelling market periods in a dataframe
 mkt_label <-  function(Vol_data, Roll_period, Upper_percentile, Lower_percentile){
  vol_data <- Vol_data %>% rename(px = Price) %>% 
@@ -843,7 +834,7 @@ lo_vol_2 <- strat_df_2 %>% filter(Strat == "LowVol") %>% select(date) %>% pull()
 - first, a rise in the change of the currency level is considered as a depreciation, given that the base is USD. 
 - second I consider the rolling 3 year return for the ZAR then move to assessing its return in hi and lo vol periods.
 
-```{r}
+```{r warning=FALSE}
 #  lets calculate monthly SA returns 
 # stratified returns 
 
@@ -877,7 +868,7 @@ kable(combined_results)
 Lets find out rolling correlation between ZAR, DXY and the Value Strategies
 
 Then conclude by finding structure volatility 
-```{r}
+```{r warning=FALSE}
 # lets put all the indices the one df and make all monthly
 
 ZAR <- crny %>% rename(ZAR.px = value) %>% select(-Tickers)
@@ -954,7 +945,7 @@ optimize a portfolio given the constraints listed below and tweak depending on o
 
 # Portfolio Construction and optimization 
 
-```{r}
+```{r warning=FALSE}
 
 # loadings
 
@@ -1024,7 +1015,7 @@ Sigma <- as.matrix( Matrix::nearPD(Sigma)$mat)
 ```
 #  linear constraints and solve the model
 
-```{r}
+```{r warning=FALSE}
 
 # the settings to the optimizer, love quadprog for this 
 
@@ -1080,7 +1071,7 @@ lets take stock of whats happening in the world in all these asset classes.
 
 - so over the short terms lets lower exposure to FI and increase equity exposure. 
 
-```{r}
+```{r warning=FALSE}
 # the settings to the optimizer, love quadprog for this 
 
 NStox <- ncol(return_mat_Nodate)
@@ -1121,6 +1112,130 @@ bvec <- c(1, rep(LB, NStox), -rep(UB, NStox), -rep(Eq, 4), -rep(Bonds, 6))
 
 ```
 
-- the optimizer is not giving me what I want. still allocates heavily to FI and credit. I suspect that its because the covarainace matrix is constructed on historical asset returns. I dont know how to add forcasts such as the Black-Litterman for the mean returns matrix. 
+- the optimizer is not giving me what I want. still allocates heavily to FI and credit. I suspect that its because the covariance matrix is constructed on historical asset returns. I dont know how to add forecasts such as the Black-Litterman for the mean returns matrix. I tried, ate up a whole load of my time.
+
+# Question 5
+
+
+# lets unpack this 
+
+-  need to find a some relation between fund flows amongst actively managed funds  and dtermine if past flows are a predic is past performance a good indicators for future performance. 
+
+- will use linear regressions estimated via lm  and Machine learning.
+
+```{r}
+# loadings 
+ASISA_flows <- read_rds("data/ASISA_Flows.rds") %>% select(-Index, -FoF)
+Rets <- read_rds("data/ASISA_Rets.rds") %>% select(-Index, -FoF)
+#  clean the data
+data <- left_join(ASISA_flows, Rets, by = c("Fund", "date")) %>% filter(!is.na(Returns) ) %>% arrange(date)
+
+any_missing <- apply(data, 2, function(x) any(is.na(x)))
+print(any_missing)
+
+# lets identify any outliers 
+
+# Identify outliers using boxplots
+boxplot(data$Returns)
+
+# Remove outliers
+
+# Assuming 'past_returns' is the column containing past return values
+Q1 <- quantile(data$Returns, 0.25)
+Q3 <- quantile(data$Returns, 0.75)
+IQR_value <- Q3 - Q1
+
+# Define upper and lower limits, this is my from of winorizing 
+upper_limit <- Q3 + 1.5 * IQR_value
+lower_limit <- Q1 - 1.5 * IQR_value
+
+# Identify potential outliers
+outliers <- data$Returns > upper_limit | data$Returns < lower_limit
+
+data <- data[!outliers, ]
+
+#Scale the data 
+
+data$Returns <- scale(data$Returns)
+
+
+# do the same for fund flows 
+
+
+# Identify outliers using boxplots
+boxplot(data$Flows)
+
+# Remove outliers
+
+# Assuming 'past_returns' is the column containing past return values
+Q1 <- quantile(data$Flows, 0.25)
+Q3 <- quantile(data$Flows, 0.75)
+IQR_value <- Q3 - Q1
+
+# Define upper and lower limits
+upper_limit <- Q3 + 1.5 * IQR_value
+lower_limit <- Q1 - 1.5 * IQR_value
+
+# Identify potential outliers
+outliers <- data$Flows > upper_limit | data$Flows < lower_limit
+
+data <- data[!outliers, ]
+
+#Scale the data 
+
+data$Flows <- scale(data$Flows)
+```
+
+
+```{r}
+
+# lets model 
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(dplyr, ggplot2, rsample, caret, glmnet, vip, tidyverse, pdp)
+
+# Split the dataset into training and testing sets
+set.seed(123)
+split  <- initial_split(data, prop = 0.7, strata = "Flows")
+data_train  <- training(split)
+data_test   <- testing(split)
+
+# Train a linear regression model
+model1 <- lm(Flows ~ Returns, data = data_train)
+
+# lets test the results, i dont have other regressors so not going to test multplie models
+set.seed(123)  
+(cv_model1 <- train(form = Flows ~ Returns, 
+  data = data_train, 
+  method = "lm",
+  trControl = trainControl(method = "cv", number = 10)
+))
+
+# Make predictions on the test set
+predictions <- predict(model1, newdata = data_test)
+
+summary(model1)
+```
+- from the summary, we can say that when returns are 0, flows are negative. This makes sense as investors will look to other sources of return, such as other assset classes. 
+
+- using an ML algorthm, I train and test prediction from model 1 out of sample, it shows statitiscal significance in the fcat that Returns do predict Flows, thus positive past  returns do result in flows to managers of said return. 
+```{r}
+# second approach 
+library(tidyfit)
+models <- data %>% 
+  group_by(Fund) %>%   # So now I estimate each model for each fund
+  regress(Returns ~ ., m("lm"), .mask = "date")
+models
+
+loadings <- coef(models)
+
+# get the intercept and flows, now intercept represents a returns when flows are zero. 
+estimates <- loadings %>% 
+  select(Fund, term, estimate) %>% 
+  spread(term, estimate) %>% drop_na(Flows, '(Intercept)') %>% 
+  ggplot(aes(Flows, '(Intercept)')) +
+  geom_point() # ran out of talent here and time, wanted but i wanted to show a structural relationship between flows and return after more robust estimation 
+
+```
+
 
 

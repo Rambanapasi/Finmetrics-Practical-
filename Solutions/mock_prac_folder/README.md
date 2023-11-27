@@ -1,26 +1,4 @@
-``` r
-# HTML Texevier:
-Texevier::create_template_html(directory = "Questions",
-                          template_name = "Question3"
-)
-```
-
-    ## 
-    ## 
-    ## =====================
-    ## 
-    ##   TEMPLATE FOLDER BUILD SUCCESSFUL at  Questions 
-    ## 
-    ## =====================
-    ## 
-    ## Proceed to edit your template located in  Questions/Question3/Question3.Rmd 
-    ## Test if you can knit the Rmd into a pdf by knitting the file (e.g. press Cntrl + Shift + K in Windows, find the knit button in Rstudio) into a pdf. A viewer will then appear showing the new pdf just built.
-    ##       
-    ## Visit https://rmarkdown.rstudio.com/ for tips on writing in R.
-
-    ## NULL
-
-# question 1
+# Question 1
 
 # Goal
 
@@ -327,7 +305,7 @@ topmanager <- combined_return %>%
 topmanager
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 -   from the distribution of returns, the same message is echoes, the
     really good managers are able to get returns distributions similar
@@ -364,23 +342,23 @@ bottom_funds_comparison_to_the_benchmark
 table3
 ```
 
-<div id="ppbgmevvig" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ppbgmevvig table {
+<div id="ifigylaies" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ifigylaies table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ppbgmevvig thead, #ppbgmevvig tbody, #ppbgmevvig tfoot, #ppbgmevvig tr, #ppbgmevvig td, #ppbgmevvig th {
+#ifigylaies thead, #ifigylaies tbody, #ifigylaies tfoot, #ifigylaies tr, #ifigylaies td, #ifigylaies th {
   border-style: none;
 }
 
-#ppbgmevvig p {
+#ifigylaies p {
   margin: 0;
   padding: 0;
 }
 
-#ppbgmevvig .gt_table {
+#ifigylaies .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -406,12 +384,12 @@ table3
   border-left-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_caption {
+#ifigylaies .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ppbgmevvig .gt_title {
+#ifigylaies .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -423,7 +401,7 @@ table3
   border-bottom-width: 0;
 }
 
-#ppbgmevvig .gt_subtitle {
+#ifigylaies .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -435,7 +413,7 @@ table3
   border-top-width: 0;
 }
 
-#ppbgmevvig .gt_heading {
+#ifigylaies .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -447,13 +425,13 @@ table3
   border-right-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_bottom_border {
+#ifigylaies .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_col_headings {
+#ifigylaies .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -468,7 +446,7 @@ table3
   border-right-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_col_heading {
+#ifigylaies .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -488,7 +466,7 @@ table3
   overflow-x: hidden;
 }
 
-#ppbgmevvig .gt_column_spanner_outer {
+#ifigylaies .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -500,15 +478,15 @@ table3
   padding-right: 4px;
 }
 
-#ppbgmevvig .gt_column_spanner_outer:first-child {
+#ifigylaies .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ppbgmevvig .gt_column_spanner_outer:last-child {
+#ifigylaies .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ppbgmevvig .gt_column_spanner {
+#ifigylaies .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -520,11 +498,11 @@ table3
   width: 100%;
 }
 
-#ppbgmevvig .gt_spanner_row {
+#ifigylaies .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ppbgmevvig .gt_group_heading {
+#ifigylaies .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -550,7 +528,7 @@ table3
   text-align: left;
 }
 
-#ppbgmevvig .gt_empty_group_heading {
+#ifigylaies .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -565,15 +543,15 @@ table3
   vertical-align: middle;
 }
 
-#ppbgmevvig .gt_from_md > :first-child {
+#ifigylaies .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ppbgmevvig .gt_from_md > :last-child {
+#ifigylaies .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ppbgmevvig .gt_row {
+#ifigylaies .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -592,7 +570,7 @@ table3
   overflow-x: hidden;
 }
 
-#ppbgmevvig .gt_stub {
+#ifigylaies .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -605,7 +583,7 @@ table3
   padding-right: 5px;
 }
 
-#ppbgmevvig .gt_stub_row_group {
+#ifigylaies .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -619,15 +597,15 @@ table3
   vertical-align: top;
 }
 
-#ppbgmevvig .gt_row_group_first td {
+#ifigylaies .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ppbgmevvig .gt_row_group_first th {
+#ifigylaies .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ppbgmevvig .gt_summary_row {
+#ifigylaies .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -637,16 +615,16 @@ table3
   padding-right: 5px;
 }
 
-#ppbgmevvig .gt_first_summary_row {
+#ifigylaies .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_first_summary_row.thick {
+#ifigylaies .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ppbgmevvig .gt_last_summary_row {
+#ifigylaies .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -656,7 +634,7 @@ table3
   border-bottom-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_grand_summary_row {
+#ifigylaies .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -666,7 +644,7 @@ table3
   padding-right: 5px;
 }
 
-#ppbgmevvig .gt_first_grand_summary_row {
+#ifigylaies .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -676,7 +654,7 @@ table3
   border-top-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_last_grand_summary_row_top {
+#ifigylaies .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -686,11 +664,11 @@ table3
   border-bottom-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_striped {
+#ifigylaies .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ppbgmevvig .gt_table_body {
+#ifigylaies .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -699,7 +677,7 @@ table3
   border-bottom-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_footnotes {
+#ifigylaies .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -713,7 +691,7 @@ table3
   border-right-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_footnote {
+#ifigylaies .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -722,7 +700,7 @@ table3
   padding-right: 5px;
 }
 
-#ppbgmevvig .gt_sourcenotes {
+#ifigylaies .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -736,7 +714,7 @@ table3
   border-right-color: #D3D3D3;
 }
 
-#ppbgmevvig .gt_sourcenote {
+#ifigylaies .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -744,63 +722,63 @@ table3
   padding-right: 5px;
 }
 
-#ppbgmevvig .gt_left {
+#ifigylaies .gt_left {
   text-align: left;
 }
 
-#ppbgmevvig .gt_center {
+#ifigylaies .gt_center {
   text-align: center;
 }
 
-#ppbgmevvig .gt_right {
+#ifigylaies .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ppbgmevvig .gt_font_normal {
+#ifigylaies .gt_font_normal {
   font-weight: normal;
 }
 
-#ppbgmevvig .gt_font_bold {
+#ifigylaies .gt_font_bold {
   font-weight: bold;
 }
 
-#ppbgmevvig .gt_font_italic {
+#ifigylaies .gt_font_italic {
   font-style: italic;
 }
 
-#ppbgmevvig .gt_super {
+#ifigylaies .gt_super {
   font-size: 65%;
 }
 
-#ppbgmevvig .gt_footnote_marks {
+#ifigylaies .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ppbgmevvig .gt_asterisk {
+#ifigylaies .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ppbgmevvig .gt_indent_1 {
+#ifigylaies .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ppbgmevvig .gt_indent_2 {
+#ifigylaies .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ppbgmevvig .gt_indent_3 {
+#ifigylaies .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ppbgmevvig .gt_indent_4 {
+#ifigylaies .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ppbgmevvig .gt_indent_5 {
+#ifigylaies .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -982,7 +960,7 @@ bottommanager <- combined_return %>%
 bottommanager
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 -   comapring to the benchmark, most managers have a return profile that
     has more variance than the benchmark while others its less volatile.
@@ -993,7 +971,7 @@ active management promises to consistently deliver superior returns
 above benchmarks. the results show that whilst this is true for some
 managers, some do not posssess the skill to deliver on their mandate.
 
-# question 2
+# Question 2
 
 ``` r
 # loadings
@@ -1195,10 +1173,7 @@ ggplot(plot_data, aes(x = ZAR_return, y = Hedged_Return)) +
 fmxdat::theme_fmx(subtitle.size = ggpts(30))
 ```
 
-    ## Warning in loadfonts_win(quiet = quiet): OS is not Windows. No fonts registered
-    ## with windowsFonts().
-
-![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 ``` r
 # correlation  results 
@@ -1238,13 +1213,13 @@ Sd
 30
 </td>
 <td style="text-align:right;">
-0.4376366
+0.431669
 </td>
 <td style="text-align:right;">
-0.1299681
+0.1386271
 </td>
 <td style="text-align:right;">
-0.0222541
+0.0225259
 </td>
 </tr>
 </tbody>
@@ -1277,13 +1252,13 @@ Sd
 30
 </td>
 <td style="text-align:right;">
-0.4376366
+0.431669
 </td>
 <td style="text-align:right;">
-0.1299681
+0.1386271
 </td>
 <td style="text-align:right;">
-0.0575167
+0.0576106
 </td>
 </tr>
 </tbody>
@@ -1307,7 +1282,7 @@ ALSI <- read_rds("data/ALSI.rds")
 RebDays <- read_rds("data/Rebalance_days.rds") %>% filter(Date_Type %in% "Reb Trade Day") %>% pull(date)
 ```
 
-## Sector and Index Analysis
+# Sector and Index Analysis
 
 -   to compare methodolgies I will examine the return and risk profile
     of indexation, as well as, turnover of the methodology (not sure how
@@ -1352,13 +1327,7 @@ J203 <- rmsfuns::Safe_Return.portfolio(Return,
                        verbose = TRUE, contribution = TRUE, 
                        
                        value = Fund_Size_at_Start, geometric = TRUE)
-```
 
-    ## Warning in Return.portfolio.geometric(R = R, weights = weights, wealth.index =
-    ## wealth.index, : The weights for one or more periods do not sum up to 1:
-    ## assuming a return of 0 for the residual weights
-
-``` r
 J403 <- rmsfuns::Safe_Return.portfolio(Return, 
                                      
                        weights = J403_weights, lag_weights = TRUE,
@@ -1366,13 +1335,8 @@ J403 <- rmsfuns::Safe_Return.portfolio(Return,
                        verbose = TRUE, contribution = TRUE, 
                        
                        value = Fund_Size_at_Start, geometric = TRUE)
-```
 
-    ## Warning in Return.portfolio.geometric(R = R, weights = weights, wealth.index =
-    ## wealth.index, : The weights for one or more periods do not sum up to 1:
-    ## assuming a return of 0 for the residual weights
 
-``` r
 J203_Contribution <- 
       J203$"contribution" %>% xts_tbl() 
 
@@ -1474,9 +1438,6 @@ Cum_J203 %>%
   fmxdat::theme_fmx()
 ```
 
-    ## Warning in loadfonts_win(quiet = quiet): OS is not Windows. No fonts registered
-    ## with windowsFonts().
-
 ![](README_files/figure-markdown_github/unnamed-chunk-11-1.png)
 
 ``` r
@@ -1517,23 +1478,23 @@ gt() %>%
     )
 ```
 
-<div id="urqmhixhrh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#urqmhixhrh table {
+<div id="didkovyyed" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#didkovyyed table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#urqmhixhrh thead, #urqmhixhrh tbody, #urqmhixhrh tfoot, #urqmhixhrh tr, #urqmhixhrh td, #urqmhixhrh th {
+#didkovyyed thead, #didkovyyed tbody, #didkovyyed tfoot, #didkovyyed tr, #didkovyyed td, #didkovyyed th {
   border-style: none;
 }
 
-#urqmhixhrh p {
+#didkovyyed p {
   margin: 0;
   padding: 0;
 }
 
-#urqmhixhrh .gt_table {
+#didkovyyed .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1559,12 +1520,12 @@ gt() %>%
   border-left-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_caption {
+#didkovyyed .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#urqmhixhrh .gt_title {
+#didkovyyed .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1576,7 +1537,7 @@ gt() %>%
   border-bottom-width: 0;
 }
 
-#urqmhixhrh .gt_subtitle {
+#didkovyyed .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1588,7 +1549,7 @@ gt() %>%
   border-top-width: 0;
 }
 
-#urqmhixhrh .gt_heading {
+#didkovyyed .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1600,13 +1561,13 @@ gt() %>%
   border-right-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_bottom_border {
+#didkovyyed .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_col_headings {
+#didkovyyed .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1621,7 +1582,7 @@ gt() %>%
   border-right-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_col_heading {
+#didkovyyed .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1641,7 +1602,7 @@ gt() %>%
   overflow-x: hidden;
 }
 
-#urqmhixhrh .gt_column_spanner_outer {
+#didkovyyed .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1653,15 +1614,15 @@ gt() %>%
   padding-right: 4px;
 }
 
-#urqmhixhrh .gt_column_spanner_outer:first-child {
+#didkovyyed .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#urqmhixhrh .gt_column_spanner_outer:last-child {
+#didkovyyed .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#urqmhixhrh .gt_column_spanner {
+#didkovyyed .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1673,11 +1634,11 @@ gt() %>%
   width: 100%;
 }
 
-#urqmhixhrh .gt_spanner_row {
+#didkovyyed .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#urqmhixhrh .gt_group_heading {
+#didkovyyed .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1703,7 +1664,7 @@ gt() %>%
   text-align: left;
 }
 
-#urqmhixhrh .gt_empty_group_heading {
+#didkovyyed .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1718,15 +1679,15 @@ gt() %>%
   vertical-align: middle;
 }
 
-#urqmhixhrh .gt_from_md > :first-child {
+#didkovyyed .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#urqmhixhrh .gt_from_md > :last-child {
+#didkovyyed .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#urqmhixhrh .gt_row {
+#didkovyyed .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1745,7 +1706,7 @@ gt() %>%
   overflow-x: hidden;
 }
 
-#urqmhixhrh .gt_stub {
+#didkovyyed .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1758,7 +1719,7 @@ gt() %>%
   padding-right: 5px;
 }
 
-#urqmhixhrh .gt_stub_row_group {
+#didkovyyed .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1772,15 +1733,15 @@ gt() %>%
   vertical-align: top;
 }
 
-#urqmhixhrh .gt_row_group_first td {
+#didkovyyed .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#urqmhixhrh .gt_row_group_first th {
+#didkovyyed .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#urqmhixhrh .gt_summary_row {
+#didkovyyed .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1790,16 +1751,16 @@ gt() %>%
   padding-right: 5px;
 }
 
-#urqmhixhrh .gt_first_summary_row {
+#didkovyyed .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_first_summary_row.thick {
+#didkovyyed .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#urqmhixhrh .gt_last_summary_row {
+#didkovyyed .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1809,7 +1770,7 @@ gt() %>%
   border-bottom-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_grand_summary_row {
+#didkovyyed .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1819,7 +1780,7 @@ gt() %>%
   padding-right: 5px;
 }
 
-#urqmhixhrh .gt_first_grand_summary_row {
+#didkovyyed .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1829,7 +1790,7 @@ gt() %>%
   border-top-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_last_grand_summary_row_top {
+#didkovyyed .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1839,11 +1800,11 @@ gt() %>%
   border-bottom-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_striped {
+#didkovyyed .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#urqmhixhrh .gt_table_body {
+#didkovyyed .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1852,7 +1813,7 @@ gt() %>%
   border-bottom-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_footnotes {
+#didkovyyed .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1866,7 +1827,7 @@ gt() %>%
   border-right-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_footnote {
+#didkovyyed .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1875,7 +1836,7 @@ gt() %>%
   padding-right: 5px;
 }
 
-#urqmhixhrh .gt_sourcenotes {
+#didkovyyed .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1889,7 +1850,7 @@ gt() %>%
   border-right-color: #D3D3D3;
 }
 
-#urqmhixhrh .gt_sourcenote {
+#didkovyyed .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1897,63 +1858,63 @@ gt() %>%
   padding-right: 5px;
 }
 
-#urqmhixhrh .gt_left {
+#didkovyyed .gt_left {
   text-align: left;
 }
 
-#urqmhixhrh .gt_center {
+#didkovyyed .gt_center {
   text-align: center;
 }
 
-#urqmhixhrh .gt_right {
+#didkovyyed .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#urqmhixhrh .gt_font_normal {
+#didkovyyed .gt_font_normal {
   font-weight: normal;
 }
 
-#urqmhixhrh .gt_font_bold {
+#didkovyyed .gt_font_bold {
   font-weight: bold;
 }
 
-#urqmhixhrh .gt_font_italic {
+#didkovyyed .gt_font_italic {
   font-style: italic;
 }
 
-#urqmhixhrh .gt_super {
+#didkovyyed .gt_super {
   font-size: 65%;
 }
 
-#urqmhixhrh .gt_footnote_marks {
+#didkovyyed .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#urqmhixhrh .gt_asterisk {
+#didkovyyed .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#urqmhixhrh .gt_indent_1 {
+#didkovyyed .gt_indent_1 {
   text-indent: 5px;
 }
 
-#urqmhixhrh .gt_indent_2 {
+#didkovyyed .gt_indent_2 {
   text-indent: 10px;
 }
 
-#urqmhixhrh .gt_indent_3 {
+#didkovyyed .gt_indent_3 {
   text-indent: 15px;
 }
 
-#urqmhixhrh .gt_indent_4 {
+#didkovyyed .gt_indent_4 {
   text-indent: 20px;
 }
 
-#urqmhixhrh .gt_indent_5 {
+#didkovyyed .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2142,7 +2103,8 @@ labs(subtitle = "ALSI capped at 10% and SWIX at 6%",
 fmxdat::theme_fmx(subtitle.size = ggpts(20))
 ```
 
-![](README_files/figure-markdown_github/q2_3-1.png) \# question 5
+![](README_files/figure-markdown_github/unnamed-chunk-14-1.png) \#
+question 5
 
 ``` r
 # loadings 
@@ -2401,23 +2363,12 @@ g <- ggplot() +
   ) + 
   theme_fmx(title.size = ggpts(30), subtitle.size = ggpts(15), caption.size = ggpts(25), CustomCaption = TRUE) +
   fmx_cols()
-```
 
-    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-    ## ℹ Please use `linewidth` instead.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
-
-    ## Warning in loadfonts_win(quiet = quiet): OS is not Windows. No fonts registered
-    ## with windowsFonts().
-
-``` r
 # Assuming finplot is a function for additional financial plotting settings
 finplot(g, x.date.dist = "3 year", x.date.type = "%Y", x.vert = TRUE, y.pct = TRUE, y.pct_acc = 1)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-17-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
 -   higher levels of DXY dont equate to higher rand valuation. We see
     that moments when the DXY depreciated the SA Rand appreciated.
@@ -2830,6 +2781,203 @@ MSCI_USA
 </table>
 
 -   the optimizer is not giving me what I want. still allocates heavily
-    to FI and credit. I suspect that its because the covarainace matrix
+    to FI and credit. I suspect that its because the covariance matrix
     is constructed on historical asset returns. I dont know how to add
-    forcasts such as the Black-Litterman for the mean returns matrix.
+    forecasts such as the Black-Litterman for the mean returns matrix. I
+    tried, ate up a whole load of my time.
+
+# Question 5
+
+# lets unpack this
+
+-   need to find a some relation between fund flows amongst actively
+    managed funds and dtermine if past flows are a predic is past
+    performance a good indicators for future performance.
+
+-   will use linear regressions estimated via lm and Machine learning.
+
+``` r
+# loadings 
+ASISA_flows <- read_rds("data/ASISA_Flows.rds") %>% select(-Index, -FoF)
+Rets <- read_rds("data/ASISA_Rets.rds") %>% select(-Index, -FoF)
+#  clean the data
+data <- left_join(ASISA_flows, Rets, by = c("Fund", "date")) %>% filter(!is.na(Returns) ) %>% arrange(date)
+
+any_missing <- apply(data, 2, function(x) any(is.na(x)))
+print(any_missing)
+```
+
+    ##    date    Fund   Flows Returns 
+    ##   FALSE   FALSE   FALSE   FALSE
+
+``` r
+# lets identify any outliers 
+
+# Identify outliers using boxplots
+boxplot(data$Returns)
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-22-1.png)
+
+``` r
+# Remove outliers
+
+# Assuming 'past_returns' is the column containing past return values
+Q1 <- quantile(data$Returns, 0.25)
+Q3 <- quantile(data$Returns, 0.75)
+IQR_value <- Q3 - Q1
+
+# Define upper and lower limits, this is my from of winorizing 
+upper_limit <- Q3 + 1.5 * IQR_value
+lower_limit <- Q1 - 1.5 * IQR_value
+
+# Identify potential outliers
+outliers <- data$Returns > upper_limit | data$Returns < lower_limit
+
+data <- data[!outliers, ]
+
+#Scale the data 
+
+data$Returns <- scale(data$Returns)
+
+
+# do the same for fund flows 
+
+
+# Identify outliers using boxplots
+boxplot(data$Flows)
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-22-2.png)
+
+``` r
+# Remove outliers
+
+# Assuming 'past_returns' is the column containing past return values
+Q1 <- quantile(data$Flows, 0.25)
+Q3 <- quantile(data$Flows, 0.75)
+IQR_value <- Q3 - Q1
+
+# Define upper and lower limits
+upper_limit <- Q3 + 1.5 * IQR_value
+lower_limit <- Q1 - 1.5 * IQR_value
+
+# Identify potential outliers
+outliers <- data$Flows > upper_limit | data$Flows < lower_limit
+
+data <- data[!outliers, ]
+
+#Scale the data 
+
+data$Flows <- scale(data$Flows)
+```
+
+``` r
+# lets model 
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(dplyr, ggplot2, rsample, caret, glmnet, vip, tidyverse, pdp)
+
+# Split the dataset into training and testing sets
+set.seed(123)
+split  <- initial_split(data, prop = 0.7, strata = "Flows")
+data_train  <- training(split)
+data_test   <- testing(split)
+
+# Train a linear regression model
+model1 <- lm(Flows ~ Returns, data = data_train)
+
+# lets test the results, i dont have other regressors so not going to test multplie models
+set.seed(123)  
+(cv_model1 <- train(form = Flows ~ Returns, 
+  data = data_train, 
+  method = "lm",
+  trControl = trainControl(method = "cv", number = 10)
+))
+```
+
+    ## Linear Regression 
+    ## 
+    ## 55880 samples
+    ##     1 predictor
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (10 fold) 
+    ## Summary of sample sizes: 50292, 50292, 50292, 50292, 50292, 50292, ... 
+    ## Resampling results:
+    ## 
+    ##   RMSE       Rsquared      MAE      
+    ##   0.9953713  0.0004181315  0.6777748
+    ## 
+    ## Tuning parameter 'intercept' was held constant at a value of TRUE
+
+``` r
+# Make predictions on the test set
+predictions <- predict(model1, newdata = data_test)
+
+summary(model1)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = Flows ~ Returns, data = data_train)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.8337 -0.3702 -0.1323  0.3344  3.2262 
+    ## 
+    ## Coefficients:
+    ##              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -0.002072   0.004211  -0.492    0.623    
+    ## Returns      0.016401   0.004056   4.044 5.27e-05 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.9954 on 55878 degrees of freedom
+    ## Multiple R-squared:  0.0002925,  Adjusted R-squared:  0.0002747 
+    ## F-statistic: 16.35 on 1 and 55878 DF,  p-value: 5.268e-05
+
+-   from the summary, we can say that when returns are 0, flows are
+    negative. This makes sense as investors will look to other sources
+    of return, such as other assset classes.
+
+-   using an ML algorthm, I train and test prediction from model 1 out
+    of sample, it shows statitiscal significance in the fcat that
+    Returns do predict Flows, thus positive past returns do result in
+    flows to managers of said return.
+
+``` r
+# second approach 
+library(tidyfit)
+models <- data %>% 
+  group_by(Fund) %>%   # So now I estimate each model for each fund
+  regress(Returns ~ ., m("lm"), .mask = "date")
+models
+```
+
+    ## # A tibble: 1,074 × 7
+    ##    Fund  model estimator_fct `size (MB)` grid_id  model_object settings        
+    ##    <chr> <chr> <chr>               <dbl> <chr>    <list>       <list>          
+    ##  1 A1    lm    stats::lm           0.220 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ##  2 A1015 lm    stats::lm           0.223 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ##  3 A1041 lm    stats::lm           0.221 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ##  4 A105  lm    stats::lm           0.248 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ##  5 A1067 lm    stats::lm           0.228 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ##  6 A131  lm    stats::lm           0.225 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ##  7 A157  lm    stats::lm           0.233 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ##  8 A183  lm    stats::lm           0.225 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ##  9 A209  lm    stats::lm           0.247 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ## 10 A235  lm    stats::lm           0.267 #0010000 <tidyFit>    <tibble [1 × 1]>
+    ## # ℹ 1,064 more rows
+
+``` r
+loadings <- coef(models)
+
+# get the intercept and flows, now intercept represents a returns when flows are zero. 
+estimates <- loadings %>% 
+  select(Fund, term, estimate) %>% 
+  spread(term, estimate) %>% drop_na(Flows, '(Intercept)') %>% 
+  ggplot(aes(Flows, '(Intercept)')) +
+  geom_point() # ran out of talent here and time, wanted but i wanted to show a structural relationship between flows and return after more robust estimation 
+```
+
+    ## Adding missing grouping variables: `model`
